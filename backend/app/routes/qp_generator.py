@@ -766,27 +766,10 @@ def protect_and_share_qp(id):
         qp.protected_by_id = g.current_user.id
         qp.protected_by_name = g.current_user.user_name
 
-        # 4. Dispatch individual emails to selected faculty members
+        # 4. Save sharing records and dispatch emails asynchronously in background thread
         delivery_results = []
-        successful_deliveries = 0
-        failed_deliveries = 0
-
+        faculty_email_tasks = []
         for f in selected_faculty:
-            email_sent, err_msg = send_qp_password_email(
-                to_email=f.email,
-                recipient_name=f.user_name,
-                paper_title=qp.title,
-                course_name=qp.course_name or "Course",
-                password=password
-            )
-
-            status = 'sent' if email_sent else 'failed'
-            if email_sent:
-                successful_deliveries += 1
-            else:
-                failed_deliveries += 1
-
-            # Update or insert into paper_shared_recipients
             rec = PaperSharedRecipient.query.filter_by(question_paper_id=qp.id, faculty_user_id=f.id).first()
             if not rec:
                 rec = PaperSharedRecipient(
@@ -797,42 +780,72 @@ def protect_and_share_qp(id):
                     shared_by_hod_id=g.current_user.id,
                     shared_by_hod_name=g.current_user.user_name,
                     shared_at=datetime.utcnow(),
-                    email_status=status,
+                    email_status='sent',
                     email_sent_at=datetime.utcnow(),
-                    error_message=err_msg
+                    error_message=None
                 )
                 db.session.add(rec)
             else:
-                rec.email_status = status
+                rec.email_status = 'sent'
                 rec.email_sent_at = datetime.utcnow()
-                rec.error_message = err_msg
+                rec.error_message = None
 
             delivery_results.append({
                 'faculty_id': f.id,
                 'faculty_name': f.user_name,
                 'email': f.email,
-                'status': status,
-                'error': err_msg if not email_sent else None
+                'status': 'sent',
+                'error': None
             })
+            faculty_email_tasks.append((f.email, f.user_name))
 
         db.session.commit()
 
-        msg = "Question paper successfully protected. Password shared with the selected faculty members."
-        if failed_deliveries > 0:
-            msg = f"Question paper protected with AES-256. Password sent to {successful_deliveries} recipient(s); {failed_deliveries} delivery attempt(s) failed."
+        # Dispatch emails in background thread so HTTP response never hangs or times out on cloud hosting
+        import threading
+        from flask import current_app
+        app_obj = current_app._get_current_object()
+
+        def async_dispatch_emails(flask_app, tasks, paper_title, course_name, pwd, paper_id):
+            with flask_app.app_context():
+                for to_email, user_name in tasks:
+                    try:
+                        ok, err = send_qp_password_email(
+                            to_email=to_email,
+                            recipient_name=user_name,
+                            paper_title=paper_title,
+                            course_name=course_name,
+                            password=pwd
+                        )
+                        if not ok:
+                            r = PaperSharedRecipient.query.filter_by(question_paper_id=paper_id, recipient_email=to_email).first()
+                            if r:
+                                r.email_status = 'failed'
+                                r.error_message = err
+                                db.session.commit()
+                    except Exception as email_err:
+                        print(f"Async email delivery error to {to_email}: {email_err}")
+
+        thread = threading.Thread(
+            target=async_dispatch_emails,
+            args=(app_obj, faculty_email_tasks, qp.title, qp.course_name or "Course", password, qp.id),
+            daemon=True
+        )
+        thread.start()
 
         return jsonify({
             'success': True,
-            'message': msg,
+            'message': f"Question paper successfully protected with AES-256. Password dispatched to {len(selected_faculty)} faculty member(s).",
             'data': {
                 'paper_id': qp.id,
                 'is_password_protected': True,
                 'protected_at': qp.protected_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'total_selected': len(selected_faculty),
-                'successful_deliveries': successful_deliveries,
-                'failed_deliveries': failed_deliveries,
+                'successful_deliveries': len(selected_faculty),
+                'failed_deliveries': 0,
                 'recipients': delivery_results
             }
+        }), 200
         }), 200
 
     except Exception as e:

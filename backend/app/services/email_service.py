@@ -279,15 +279,21 @@ def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, def
             logger.info(f"Connecting to SMTP server {smtp_server}:{smtp_port} for {to_email}...")
             server = None
             try:
-                if smtp_port == 465 or 'gmail' in smtp_server.lower():
-                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=20)
+                # Primary attempt: Try Port 587 STARTTLS (standard for cloud platforms like Render/AWS)
+                if smtp_port == 587 or use_tls:
+                    server = smtplib.SMTP(smtp_server, 587, timeout=10)
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
                 else:
-                    server = smtplib.SMTP(smtp_server, smtp_port, timeout=20)
-                    if use_tls:
-                        server.starttls()
-            except Exception as conn_err:
-                logger.warning(f"Initial connection to {smtp_server}:{smtp_port} failed ({conn_err}). Falling back to SSL port 465...")
-                server = smtplib.SMTP_SSL(smtp_server, 465, timeout=20)
+                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=10)
+            except Exception as conn_err1:
+                logger.warning(f"Primary connection to {smtp_server} failed ({conn_err1}). Trying SSL/TLS fallback...")
+                try:
+                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=10)
+                except Exception as conn_err2:
+                    server = smtplib.SMTP(smtp_server, 587, timeout=10)
+                    server.starttls()
 
             server.login(smtp_username, smtp_password)
             server.send_message(msg)
