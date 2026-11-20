@@ -1,0 +1,28 @@
+databases:
+  - name: qpdb-cloud
+    databaseName: qpdb
+    user: qpuser
+    plan: free
+    region: oregon
+
+services:
+  # Python Flask REST API Backend
+  - type: web
+    name: projectqp-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: qpdb-cloud
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: PORT
+        value: 5000
