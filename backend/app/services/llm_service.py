@@ -91,10 +91,9 @@ class LLMService:
             grounded_context = f"Course: {course_name}. Target Topic: {target_topic}."
 
         system_instruction = (
-            "You are a distinguished university examination setter and academic evaluator. "
-            "You generate authentic, academically rigorous examination questions strictly aligned with Outcome-Based Education (OBE), "
-            "Bloom's Taxonomy, and university examination standards. "
-            "Ensure the question is grammatically flawless, natural, clear, and directly assesses the designated Course Outcome without awkward phrase concatenation."
+            "You are a distinguished university professor and chief examination paper setter for an autonomous engineering university (such as GMRIT). "
+            "You construct high-standard examination papers following Outcome-Based Education (OBE) principles, Revised Bloom's Taxonomy (RBT Levels), "
+            "and strict Course Outcome (CO) alignment. Questions must read naturally, clearly, and authoritatively, avoiding awkward concatenation of topics."
         )
 
         co_display = f"{co}: {co_description}" if co_description else co
@@ -108,21 +107,39 @@ Target Topic: {target_topic}
 Question Type: {section_type}
 Marks: {marks} Marks
 Course Outcome (CO) Aligned: {co_display}
-Bloom's Taxonomy Cognitive Level: {bloom_level}
+Revised Bloom's Taxonomy (RBT Level): {bloom_level}
 Difficulty Level: {difficulty}
 Question Number: {q_no}
 Choice Mode: {choice_mode}
 Sub-division: {sub_division}
 
-Instructions:
-1. Generate the examination question text grounded directly in the syllabus context and strictly aligned to the Course Outcome.
-2. The question MUST read naturally and professionally. Never concatenate multiple syllabus topic fragments into a broken sentence.
-3. For MCQs: Provide the question stem followed by 4 distinct options labeled A), B), C), D).
-4. For Short Answers ({marks}M): Generate a concise, direct question testing conceptual clarity or syntax.
-5. For Long Answers ({marks}M):
-   - If sub_division is 'two_subquestions': Split into part a) and part b) with individual marks labeled (e.g. {math.ceil(marks/2)}M + {marks - math.ceil(marks/2)}M).
-   - If choice_mode is 'internal_choice': Provide question 1, followed by '[OR]', followed by question 2.
-6. Return strictly a JSON object with this exact structure:
+Institutional Examination Guidelines (GMRIT Autonomous Standards):
+1. For Short Answer Questions (2 Marks, Section-I):
+   - Revised Bloom's Taxonomy: Remember or Understand.
+   - Questions must be concise, crisp, and direct (1-2 lines).
+   - Exemplar phrasing:
+     * "Define [Concept]." (e.g. "Define Encapsulation.")
+     * "Identify the keyword in [Language] that refers to [Feature]."
+     * "Illustrate the advantage of using the [Keyword/Feature] in [Domain]."
+     * "Differentiate between [Concept A] and [Concept B]."
+     * "What is the main benefit of [Mechanism]?"
+     * "Illustrate why [Mechanism] is needed."
+     * "What is the main purpose of [Framework/API]?"
+
+2. For Long Answer Questions (14 Marks total, Section-II):
+   - Part (a) [8 Marks]: Substantial programming implementation, in-depth design, or structural analysis.
+     * Exemplar: "Write a program to implement matrix addition using multidimensional arrays."
+     * Exemplar: "Write a program for creating one base class for student personal details and inherit those details into the subclass of student educational details to display complete student information."
+     * Exemplar: "Describe the different types of JDBC drivers."
+     * Exemplar: "Differentiate the keywords throw and throws."
+   - Part (b) [6 Marks]: Conceptual mechanism with illustrative example program, lifecycle diagram, or framework architecture.
+     * Exemplar: "Illustrate method overloading in Java with an example program."
+     * Exemplar: "Define a constructor. Illustrate the different types of constructors with an example."
+     * Exemplar: "Draw and explain the lifecycle of thread."
+     * Exemplar: "Demonstrate how to create and implement an interface with an example program."
+   - In Internal Choice pairs (e.g., Q2 OR Q3): Both alternatives MUST assess the SAME Course Outcome (CO) and RBT Bloom's Level.
+
+3. Return strictly a JSON object with this exact structure:
 {{
   "question_text": "<full formatted question text>",
   "key_concepts_tested": ["concept1", "concept2"],

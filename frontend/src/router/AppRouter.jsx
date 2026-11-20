@@ -25,8 +25,17 @@ const HODOnlyRoute = ({ children }) => {
   return children;
 };
 
-// Multi-Role Portals
+// Faculty-Only Route Guard (Student Marks Entry)
+const FacultyOnlyRoute = ({ children }) => {
+  const { isFaculty, loading } = useAuth();
+  if (loading) return null;
+  if (!isFaculty) return <Navigate to="/faculty/co-evaluation" replace />;
+  return children;
+};
+
 import FacultyUpload from '../pages/Faculty/FacultyUpload';
+import StudentEvaluation from '../pages/Faculty/StudentEvaluation';
+import COEvaluation from '../pages/Faculty/COEvaluation';
 import HODDashboard from '../pages/HOD/HODDashboard';
 import QPGenerator from '../pages/HOD/QPGenerator';
 import QPHistory from '../pages/HOD/QPHistory';
@@ -64,6 +73,11 @@ const AppRouter = () => {
             {/* Faculty Portal Routes */}
             <Route path="/faculty" element={<FacultyUpload />} />
             <Route path="/faculty/upload" element={<FacultyUpload />} />
+            <Route path="/faculty/evaluation" element={<FacultyOnlyRoute><StudentEvaluation /></FacultyOnlyRoute>} />
+            <Route path="/faculty/co-evaluation" element={<COEvaluation />} />
+            <Route path="/co-evaluation" element={<COEvaluation />} />
+            <Route path="/evaluations" element={<FacultyOnlyRoute><StudentEvaluation /></FacultyOnlyRoute>} />
+            <Route path="/students" element={<FacultyOnlyRoute><StudentEvaluation /></FacultyOnlyRoute>} />
 
             {/* HOD Portal & Question Paper Routes */}
             <Route path="/hod" element={<HODDashboard />} />

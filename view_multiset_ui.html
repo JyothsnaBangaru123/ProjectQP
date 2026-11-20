@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Set Generation Architecture & UI Changes — QP - SAKTI Sahayak</title>
+  <style>
+    :root {
+      --bg: #080d1a;
+      --card-bg: #0f172a;
+      --primary: #38bdf8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      max-width: 950px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+    .btn-secondary:hover {
+      background: #334155;
+      transform: translateY(-2px);
+    }
+    .slide-wrapper {
+      width: 100%;
+      max-width: 1350px;
+      background: #090e1c;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.2);
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .slide-wrapper img, .slide-wrapper svg, .slide-wrapper object {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .explain-card {
+      max-width: 1350px;
+      width: 100%;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+    .explain-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 16px;
+    }
+    @media (max-width: 900px) {
+      .explain-grid { grid-template-columns: 1fr; }
+    }
+    .explain-col {
+      background: #1a2234;
+      padding: 18px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+    }
+    .explain-col h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .explain-col ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>⚡ Multi-Set Generator Architecture &amp; UI Changes</h1>
+    <p>Visual explanation of how parallel set generation (Sets A, B, C) works behind the scenes and how it smoothly enhances the current user interface.</p>
+  </div>
+
+  <div class="actions-bar">
+    <a href="Multi_Set_Generation_Architecture_UI.svg" download="Multi_Set_Generation_Architecture_UI.svg" class="btn btn-primary">
+      ⬇️ Download Vector Diagram (SVG)
+    </a>
+    <button class="btn btn-secondary" onclick="window.print()">
+      🖨️ Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="slide-wrapper">
+    <object data="Multi_Set_Generation_Architecture_UI.svg" type="image/svg+xml">
+      <img src="Multi_Set_Generation_Architecture_UI.svg" alt="Multi-Set Generation Architecture and UI Changes" />
+    </object>
+  </div>
+
+  <div class="explain-card">
+    <h2 style="margin: 0 0 6px 0; font-size: 20px; color: #f8fafc;">Key Takeaways &amp; Architectural Summary</h2>
+    <p style="margin: 0; color: #94a3b8; font-size: 14.5px;">Summary of how this feature strengthens academic integrity and elevates the user interface:</p>
+
+    <div class="explain-grid">
+      <div class="explain-col">
+        <h3><span>⚙️</span> How It Works Under The Hood</h3>
+        <ul>
+          <li><strong>Single Ingestion:</strong> The HOD configures one syllabus and blueprint once (70 Marks, 5 Units, Bloom's percentages).</li>
+          <li><strong>Concept Partitioning:</strong> The engine extracts learning topics. When Set A uses a topic (e.g., Stacks), that topic is blacklisted for Sets B &amp; C, ensuring <strong>0% topical overlap</strong>.</li>
+          <li><strong>Equi-Difficulty Parity:</strong> All 3 sets have mathematically identical difficulty and cognitive depth so no student receives an unfairly hard or easy paper.</li>
+          <li><strong>Sealed Batch Archive:</strong> All 3 sets are saved under one <code>Batch ID</code> (e.g. <code>BATCH-2026-CS301</code>).</li>
+        </ul>
+      </div>
+
+      <div class="explain-col">
+        <h3><span>🖥️</span> How The UI Changes</h3>
+        <ul>
+          <li><strong>QP Generator Screen (/hod/generate):</strong> Adds a clean <strong>"Generation Mode"</strong> selector: <em>Single Paper</em> vs. <em>⭐ 3 Parallel Sets (A, B, C)</em>. Everything else stays identical.</li>
+          <li><strong>QP Archives Screen (/hod/papers):</strong> Groups papers into a <strong>Unified Batch Card</strong> with clickable tabs <code>[Set A]</code>, <code>[Set B]</code>, <code>[Set C]</code> instead of cluttered separate rows.</li>
+          <li><strong>Exam Day "Random Draw":</strong> Adds an authorized button <code>🎲 Random Draw Active Set</code> so the Controller of Examinations picks the live set on exam morning.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -10,7 +10,110 @@ import SelectInput from '../../components/common/SelectInput';
 import FormInput from '../../components/common/FormInput';
 import Loader from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
+import AcademicQuestionPaper from '../../components/common/AcademicQuestionPaper';
+import GMRITLogo from '../../components/common/GMRITLogo';
+import ProtectQPModal from '../../components/common/ProtectQPModal';
 import { YEARS, SEMESTERS, EXAM_TITLES, BLOOM_LEVELS, getAcademicYear } from '../../utils/constants';
+
+export const EXAM_PRESETS = [
+  {
+    id: 'gmrit_ar23_end_70',
+    name: 'GMRIT Autonomous End Exam (AR23) - 70 Marks',
+    badge: 'Official University Pattern',
+    recommended: true,
+    description: 'Autonomous Batch: SECTION-I (7 x 2M = 14M, a to g) + SECTION-II (4 x 14M = 56M, 8M+6M internal choice Q2-Q9)',
+    duration: '3 Hours',
+    total_marks: 70,
+    title: 'SEMESTER END REGULAR/SUPPLEMENTARY EXAMINATIONS (AR23), NOV. – 2026',
+    special_instructions: '1. Answer ALL questions from SECTION-I and ANY FOUR questions from SECTION-II.\n2. All parts of the question must be answered in one place only.\n3. Assume suitable data if necessary.',
+    sections: [
+      {
+        id: 1,
+        name: 'SECTION-I',
+        type: 'Short Answer',
+        questions: 7,
+        marks_per_q: 2,
+        choice_mode: 'none',
+        sub_division: 'none',
+        question_cos: Array(7).fill('auto'),
+        question_blooms: ['Remember', 'Remember', 'Remember', 'Remember', 'Remember', 'Remember', 'Remember']
+      },
+      {
+        id: 2,
+        name: 'SECTION-II',
+        type: 'Long Answer',
+        questions: 4,
+        marks_per_q: 14,
+        choice_mode: 'internal_choice',
+        sub_division: 'two_subquestions',
+        question_sub_divisions: ['two_subquestions', 'two_subquestions', 'two_subquestions', 'two_subquestions'],
+        question_sub_marks: [
+          { q1_a: 8, q1_b: 6, q2_a: 8, q2_b: 6 },
+          { q1_a: 8, q1_b: 6, q2_a: 8, q2_b: 6 },
+          { q1_a: 8, q1_b: 6, q2_a: 8, q2_b: 6 },
+          { q1_a: 8, q1_b: 6, q2_a: 8, q2_b: 6 }
+        ],
+        question_cos: Array(4).fill('auto'),
+        question_blooms: ['Understand', 'Apply', 'Understand', 'Understand']
+      }
+    ]
+  },
+  {
+    id: 'gmrit_mid_30',
+    name: 'GMRIT Mid-Term Examination - 30 Marks',
+    badge: 'Mid Exam',
+    recommended: false,
+    description: 'SECTION-I: 5 x 2M = 10M + SECTION-II: 2 x 10M = 20M (Internal Choice Q2-Q5)',
+    duration: '90 Minutes',
+    total_marks: 30,
+    title: 'MID-TERM EXAMINATIONS (AR23)',
+    special_instructions: '1. Answer ALL questions from SECTION-I and ANY TWO questions from SECTION-II.',
+    sections: [
+      {
+        id: 1,
+        name: 'SECTION-I',
+        type: 'Short Answer',
+        questions: 5,
+        marks_per_q: 2,
+        choice_mode: 'none',
+        sub_division: 'none',
+        question_cos: Array(5).fill('auto'),
+        question_blooms: Array(5).fill('Remember')
+      },
+      {
+        id: 2,
+        name: 'SECTION-II',
+        type: 'Long Answer',
+        questions: 2,
+        marks_per_q: 10,
+        choice_mode: 'internal_choice',
+        sub_division: 'two_subquestions',
+        question_sub_divisions: ['two_subquestions', 'two_subquestions'],
+        question_sub_marks: [
+          { q1_a: 5, q1_b: 5, q2_a: 5, q2_b: 5 },
+          { q1_a: 5, q1_b: 5, q2_a: 5, q2_b: 5 }
+        ],
+        question_cos: Array(2).fill('auto'),
+        question_blooms: Array(2).fill('Understand')
+      }
+    ]
+  },
+  {
+    id: 'cia_50',
+    name: 'Continuous Internal Assessment - 50 Marks',
+    badge: 'Internal Assessment',
+    recommended: false,
+    description: 'SECTION-I: 5 x 2M = 10M + SECTION-II: 4 x 10M = 40M',
+    duration: '2 Hours',
+    total_marks: 50,
+    title: 'CONTINUOUS INTERNAL ASSESSMENT (OBE)',
+    special_instructions: '1. All questions are compulsory.',
+    sections: [
+      { id: 1, name: 'SECTION-I', type: 'Short Answer', questions: 5, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto'), question_blooms: Array(5).fill('auto') },
+      { id: 2, name: 'SECTION-II', type: 'Long Answer', questions: 4, marks_per_q: 10, choice_mode: 'internal_choice', sub_division: 'two_subquestions', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'two_subquestions', 'two_subquestions'], question_cos: Array(4).fill('auto'), question_blooms: Array(4).fill('auto') }
+    ]
+  }
+];
 
 const QUESTION_TYPES = [
   { value: 'MCQ', label: "MCQ's" },
@@ -19,13 +122,152 @@ const QUESTION_TYPES = [
   { value: 'None', label: 'None' }
 ];
 
+export const parseQuestionSubParts = (text, q, partPrefix = 'q1') => {
+  if (!text) return null;
+
+  const hasA = /(?:^|\n)\s*(?:\(?a\)?|\ba\))\s*[\.\)]?\s*/i.test(text);
+  const hasB = /(?:^|\n)\s*(?:\(?b\)?|\bb\))\s*[\.\)]?\s*/i.test(text);
+  if (!hasA || !hasB) return null;
+
+  const lines = text.split('\n');
+  const parts = [];
+  let currentPart = null;
+
+  for (const line of lines) {
+    const subMatch = line.match(/^\s*([a-z])\s*[\.\)]\s*(.*)$/i);
+    if (subMatch) {
+      if (currentPart) parts.push(currentPart);
+      currentPart = {
+        letter: subMatch[1].toLowerCase(),
+        fullText: line.trim()
+      };
+    } else if (currentPart) {
+      if (line.trim()) {
+        currentPart.fullText += '\n' + line;
+      }
+    } else if (line.trim()) {
+      currentPart = {
+        letter: '',
+        fullText: line.trim()
+      };
+    }
+  }
+  if (currentPart) parts.push(currentPart);
+
+  const labeled = parts.filter(p => p.letter);
+  if (labeled.length < 2) return null;
+
+  return labeled.map((p, idx) => {
+    const raw = p.fullText;
+    const marksMatch = raw.match(/\[(\d+)\s*M\]/i);
+    const coMatch = raw.match(/\[(CO\d+)\]/i);
+
+    let marks = marksMatch ? parseInt(marksMatch[1], 10) : null;
+    if (!marks) {
+      if (idx === 0) marks = q?.p1_marks || (q?.marks === 14 ? 8 : Math.ceil((q?.marks || 10) / 2));
+      else marks = q?.p2_marks || (q?.marks ? Math.max(1, q.marks - (q?.p1_marks || 8)) : 6);
+    }
+
+    let co = coMatch ? coMatch[1] : null;
+    if (!co) {
+      if (idx === 0) {
+        co = partPrefix === 'q2' ? (q?.q2_co_a || q?.q2_co || q?.co || 'CO1') : (q?.q1_co_a || q?.q1_co || q?.co || 'CO1');
+      } else {
+        co = partPrefix === 'q2' ? (q?.q2_co_b || q?.q2_co || q?.co || 'CO2') : (q?.q1_co_b || q?.q1_co || q?.co || 'CO2');
+      }
+    }
+
+    let bloom = null;
+    if (idx === 0) {
+      bloom = partPrefix === 'q2' ? (q?.q2_bloom_a || q?.q2_bloom || q?.bloom_level) : (q?.q1_bloom_a || q?.q1_bloom || q?.bloom_level);
+    } else {
+      bloom = partPrefix === 'q2' ? (q?.q2_bloom_b || q?.q2_bloom || q?.bloom_level) : (q?.q1_bloom_b || q?.q1_bloom || q?.bloom_level);
+    }
+
+    // Strip inline marks and CO tags from display text
+    const cleanText = raw.replace(/\[\d+\s*M\]/gi, '').replace(/\[CO\d+\]/gi, '').trim();
+
+    return {
+      letter: p.letter,
+      text: cleanText,
+      marks,
+      co,
+      bloom
+    };
+  });
+};
+
+export const cleanQuestionText = (text) => {
+  if (!text) return '';
+  return text.replace(/\[\d+\s*M\]/gi, '').replace(/\[CO\d+\]/gi, '').trim();
+};
+
 const DEFAULT_COS = [
   { id: 'CO1', description: 'Analyze computational complexity and foundational architectures of the course domain', bloom_level: 'Understand', unit: 'Unit 1' },
   { id: 'CO2', description: 'Demonstrate algorithmic strategies, state management, and design paradigms', bloom_level: 'Apply', unit: 'Unit 2' },
   { id: 'CO3', description: 'Design modular solutions, interfaces, and component interaction models', bloom_level: 'Apply', unit: 'Unit 3' },
   { id: 'CO4', description: 'Formulate error handling, fault tolerance, and concurrency synchronization mechanisms', bloom_level: 'Analyze', unit: 'Unit 4' },
-  { id: 'CO5', description: 'Evaluate architectural trade-offs, memory footprints, and system performance metrics', bloom_level: 'Evaluate', unit: 'Unit 5' }
+  { id: 'CO5', description: 'Evaluate architectural trade-offs, memory footprints, and system performance metrics', bloom_level: 'Evaluate', unit: 'Unit 4' },
+  { id: 'CO6', description: 'Synthesize comprehensive engineering designs, methodologies, and system implementations', bloom_level: 'Create', unit: 'Unit 4' }
 ];
+
+const DEFAULT_UNITS = [
+  {
+    id: 1,
+    unit_key: 'Unit 1',
+    unit_label: 'Unit-I',
+    unit_title: 'Overview of Web Databases & Core Architecture',
+    name: 'Unit-I: Overview of Web Databases & Core Architecture',
+    hours: '11 Hours',
+    weight: 25,
+    topics: ['Web Database Architectures', 'Client & Server-Side Programming', 'Session Management & State Tracking', 'HTTP Gateways & CGI']
+  },
+  {
+    id: 2,
+    unit_key: 'Unit 2',
+    unit_label: 'Unit-II',
+    unit_title: 'Structured Databases & Relational Management',
+    name: 'Unit-II: Structured Databases & Relational Management',
+    hours: '13 Hours',
+    weight: 25,
+    topics: ['Relational Data Modeling', 'CRUD Operations & Constraints', 'Database Transactions & ACID Properties', 'Triggers & Python Connectivity']
+  },
+  {
+    id: 3,
+    unit_key: 'Unit 3',
+    unit_label: 'Unit-III',
+    unit_title: 'Unstructured Databases & Document Stores',
+    name: 'Unit-III: Unstructured Databases & Document Stores',
+    hours: '13 Hours',
+    weight: 25,
+    topics: ['NoSQL Architectures vs RDBMS', 'Document Data Modeling & Collections', 'CRUD Document Operations', 'Aggregation Pipelines & Cloud Clusters']
+  },
+  {
+    id: 4,
+    unit_key: 'Unit 4',
+    unit_label: 'Unit-IV',
+    unit_title: 'Database Connections, Security & Web Services',
+    name: 'Unit-IV: Database Connections, Security & Web Services',
+    hours: '11 Hours',
+    weight: 25,
+    topics: ['Native & Independent Database APIs', 'REST Web Services & JSON Payloads', 'Authentication & Authorization Controls', 'SQL/NoSQL Injection Mitigation']
+  }
+];
+
+const formatExamDate = (dateVal) => {
+  if (!dateVal) return '';
+  const parts = String(dateVal).split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const dateObj = new Date(y, m, d);
+    if (!isNaN(dateObj.getTime())) {
+      return dateObj.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+  }
+  return dateVal;
+};
 
 const QPGenerator = () => {
   const { user, branchName } = useAuth();
@@ -35,7 +277,7 @@ const QPGenerator = () => {
   const [activeTab, setActiveTab] = useState('details');
 
   const [courses, setCourses] = useState([]);
-  const [blooms, setBlooms] = useState([]);
+  const [blooms, setBlooms] = useState(['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']);
   const [qlevels, setQlevels] = useState([]);
   const [courseDocuments, setCourseDocuments] = useState([]);
   const [allDocuments, setAllDocuments] = useState([]);
@@ -45,27 +287,34 @@ const QPGenerator = () => {
   const [uploadingDirectToDb, setUploadingDirectToDb] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savedPaper, setSavedPaper] = useState(null);
+  const [showProtectModal, setShowProtectModal] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [extractingCOs, setExtractingCOs] = useState(false);
+  const [extractingUnits, setExtractingUnits] = useState(false);
+  const [coSourceInfo, setCoSourceInfo] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // 1. Details State
-  const [institutionName, setInstitutionName] = useState('Grand National Tech University');
+  // 1. Details State - Initialized to GMRIT Autonomous Pattern
+  const [institutionName, setInstitutionName] = useState('GMRIT DEEMED TO BE UNIVERSITY');
   const [selectedCourse, setSelectedCourse] = useState('');
-  const [title, setTitle] = useState(EXAM_TITLES[0].value);
+  const [selectedPreset, setSelectedPreset] = useState('gmrit_ar23_end_70');
+  const [title, setTitle] = useState(EXAM_PRESETS[0].title);
   const [duration, setDuration] = useState('3 Hours');
   const [examDate, setExamDate] = useState(() => {
     const d = new Date();
-    return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    d.setDate(d.getDate() + 1); // Current system date + 1 day
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   });
   const [academicYear, setAcademicYear] = useState(() => getAcademicYear());
-  const [sem, setSem] = useState(1);
+  const [sem, setSem] = useState(5);
   const [totalMarks, setTotalMarks] = useState(70);
-  const [specialInstructions, setSpecialInstructions] = useState(
-    '1. All questions are compulsory.\n2. Simple scientific calculators are permitted.\n3. Assume suitable data if necessary.'
-  );
+  const [specialInstructions, setSpecialInstructions] = useState(EXAM_PRESETS[0].special_instructions);
 
   // Material & Course Documents State
   const [materialText, setMaterialText] = useState('');
@@ -75,30 +324,82 @@ const QPGenerator = () => {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  // 2. Structure State (Sections)
-  const [sections, setSections] = useState([
-    { id: 1, name: 'Section A', type: 'MCQ', questions: 10, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(10).fill('auto') },
-    { id: 2, name: 'Section B', type: 'Short Answer', questions: 5, marks_per_q: 4, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto') },
-    { id: 3, name: 'Section C', type: 'Long Answer', questions: 3, marks_per_q: 10, choice_mode: 'none', sub_division: 'mixed', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'], question_cos: Array(3).fill('auto') }
-  ]);
+  // 2. Structure State (Sections) - Defaults to GMRIT Autonomous AR23 (70M)
+  const [sections, setSections] = useState(() => JSON.parse(JSON.stringify(EXAM_PRESETS[0].sections)));
+
+  const handleApplyPreset = (presetId) => {
+    const preset = EXAM_PRESETS.find(p => p.id === presetId);
+    if (!preset) return;
+    setSelectedPreset(presetId);
+    setTotalMarks(preset.total_marks);
+    setDuration(preset.duration);
+    setTitle(preset.title);
+    setSpecialInstructions(preset.special_instructions);
+    setSections(JSON.parse(JSON.stringify(preset.sections)));
+    showNotification(`Applied preset: ${preset.name}`);
+  };
+
+  const handleAcademicQuestionChange = (secIdx, qIdx, newText, metaUpdates = null) => {
+    setGeneratedPaper(prev => {
+      if (!prev || !prev.sections) return prev;
+      const newSecs = [...prev.sections];
+      const targetSec = { ...newSecs[secIdx] };
+      const newQuestions = [...(targetSec.questions || [])];
+      const targetQ = { ...newQuestions[qIdx] };
+
+      if (newText !== null && newText !== undefined) {
+        targetQ.question = newText;
+      }
+      if (metaUpdates) {
+        Object.assign(targetQ, metaUpdates);
+      }
+      newQuestions[qIdx] = targetQ;
+      targetSec.questions = newQuestions;
+      newSecs[secIdx] = targetSec;
+
+      return {
+        ...prev,
+        sections: newSecs
+      };
+    });
+  };
 
   // 3. Course Outcomes (COs) State
   const [outcomes, setOutcomes] = useState(DEFAULT_COS);
   const [coDetectionStatus, setCoDetectionStatus] = useState('idle'); // 'idle' | 'found' | 'not_found'
-  const [newCoId, setNewCoId] = useState('CO6');
+  const [newCoId, setNewCoId] = useState('CO7');
   const [newCoDesc, setNewCoDesc] = useState('');
-  const [newCoBloom, setNewCoBloom] = useState('Understand');
+  const [newCoBloom, setNewCoBloom] = useState('Remember');
   const [newCoUnit, setNewCoUnit] = useState('Unit 1');
 
-  // 4. Topics State
-  const [topics, setTopics] = useState([
-    { id: 1, name: 'Core Foundations & Architectural Principles', weight: 25 },
-    { id: 2, name: 'Algorithms, Data Flows & Methodologies', weight: 25 },
-    { id: 3, name: 'Component Implementation & Modular Design', weight: 25 },
-    { id: 4, name: 'System Optimization, Error Recovery & Performance', weight: 25 }
-  ]);
+  // 4. Topics & Curriculum Units State
+  const [topics, setTopics] = useState(DEFAULT_UNITS);
   const [newTopicName, setNewTopicName] = useState('');
   const [newTopicWeight, setNewTopicWeight] = useState(25);
+  const [unitConceptInputs, setUnitConceptInputs] = useState({});
+
+  // Dynamic available units derived from extracted topics/units
+  const availableUnits = useMemo(() => {
+    if (!topics || topics.length === 0) {
+      return [
+        { unit_key: 'Unit 1', label: 'Unit 1: Foundations', unit_label: 'Unit-I' },
+        { unit_key: 'Unit 2', label: 'Unit 2: Architecture', unit_label: 'Unit-II' },
+        { unit_key: 'Unit 3', label: 'Unit 3: Implementation', unit_label: 'Unit-III' },
+        { unit_key: 'Unit 4', label: 'Unit 4: Advanced Systems', unit_label: 'Unit-IV' }
+      ];
+    }
+    return topics.map((t, idx) => {
+      const uKey = t.unit_key || `Unit ${t.id || idx + 1}`;
+      const uLabel = t.unit_label || uKey;
+      const title = t.unit_title || t.name || '';
+      return {
+        unit_key: uKey,
+        label: title ? `${uLabel}: ${title}` : uLabel,
+        unit_label: uLabel,
+        unit_title: title
+      };
+    });
+  }, [topics]);
 
   // 5. Difficulty & Blooms State
   const [difficulty, setDifficulty] = useState({ easy: 40, medium: 40, hard: 20 });
@@ -109,11 +410,127 @@ const QPGenerator = () => {
   // Generated Paper Result
   const [generatedPaper, setGeneratedPaper] = useState(null);
 
-  // Automatically calculate total marks from sections
+  // Helper functions for question marks, sub-divisions, COs, and Blooms
+  const getQuestionSubDivision = (sec, qIdx) => {
+    if (!sec || sec.type !== 'Long Answer') return 'none';
+    if (sec.question_sub_divisions && sec.question_sub_divisions[qIdx]) {
+      return sec.question_sub_divisions[qIdx];
+    }
+    return sec.sub_division === 'none' ? 'none' : 'two_subquestions';
+  };
+
+  const getQuestionMarks = (sec, qIdx) => {
+    const defaultTotal = parseInt(sec?.marks_per_q) || 14;
+    // Default 14M divides into 8M (a) + 6M (b) pattern
+    const defA = defaultTotal === 14 ? 8 : Math.ceil(defaultTotal / 2);
+    const defB = defaultTotal - defA;
+
+    const entry = sec?.question_sub_marks?.[qIdx];
+    if (entry && typeof entry === 'object') {
+      return {
+        q1_a: entry.q1_a !== undefined ? entry.q1_a : defA,
+        q1_b: entry.q1_b !== undefined ? entry.q1_b : defB,
+        q2_a: entry.q2_a !== undefined ? entry.q2_a : (entry.q1_a !== undefined ? entry.q1_a : defA),
+        q2_b: entry.q2_b !== undefined ? entry.q2_b : (entry.q1_b !== undefined ? entry.q1_b : defB),
+        q1: entry.q1 !== undefined ? entry.q1 : defaultTotal,
+        q2: entry.q2 !== undefined ? entry.q2 : (entry.q1 !== undefined ? entry.q1 : defaultTotal)
+      };
+    }
+    return {
+      q1_a: defA,
+      q1_b: defB,
+      q2_a: defA,
+      q2_b: defB,
+      q1: defaultTotal,
+      q2: defaultTotal
+    };
+  };
+
+  const getQuestionCOs = (sec, qIdx) => {
+    const entry = sec?.question_cos?.[qIdx];
+    if (entry && typeof entry === 'object') {
+      return {
+        q1: entry.q1 || 'auto',
+        q2: entry.q2 || 'auto',
+        q1_a: entry.q1_a || entry.q1 || 'auto',
+        q1_b: entry.q1_b || entry.q1 || 'auto',
+        q2_a: entry.q2_a || entry.q2 || 'auto',
+        q2_b: entry.q2_b || entry.q2 || 'auto'
+      };
+    }
+    if (typeof entry === 'string') {
+      return {
+        q1: entry,
+        q2: entry,
+        q1_a: entry,
+        q1_b: entry,
+        q2_a: entry,
+        q2_b: entry
+      };
+    }
+    return {
+      q1: 'auto',
+      q2: 'auto',
+      q1_a: 'auto',
+      q1_b: 'auto',
+      q2_a: 'auto',
+      q2_b: 'auto'
+    };
+  };
+
+  const getQuestionBlooms = (sec, qIdx) => {
+    const entry = sec?.question_blooms?.[qIdx];
+    if (entry && typeof entry === 'object') {
+      return {
+        q1: entry.q1 || 'auto',
+        q2: entry.q2 || 'auto',
+        q1_a: entry.q1_a || entry.q1 || 'auto',
+        q1_b: entry.q1_b || entry.q1 || 'auto',
+        q2_a: entry.q2_a || entry.q2 || 'auto',
+        q2_b: entry.q2_b || entry.q2 || 'auto'
+      };
+    }
+    if (typeof entry === 'string') {
+      return {
+        q1: entry,
+        q2: entry,
+        q1_a: entry,
+        q1_b: entry,
+        q2_a: entry,
+        q2_b: entry
+      };
+    }
+    return {
+      q1: 'auto',
+      q2: 'auto',
+      q1_a: 'auto',
+      q1_b: 'auto',
+      q2_a: 'auto',
+      q2_b: 'auto'
+    };
+  };
+
+  const calculateSectionSubtotal = (sec) => {
+    if (!sec || sec.type === 'None') return 0;
+    const numQ = parseInt(sec.questions || 0);
+    let sum = 0;
+    for (let i = 0; i < numQ; i++) {
+      const subDiv = getQuestionSubDivision(sec, i);
+      const m = getQuestionMarks(sec, i);
+      if (subDiv === 'two_subquestions') {
+        sum += (parseInt(m.q1_a) || 0) + (parseInt(m.q1_b) || 0);
+      } else {
+        sum += (parseInt(m.q1) || parseInt(sec.marks_per_q) || 0);
+      }
+    }
+    return sum;
+  };
+
+  // Automatically calculate total marks from sections taking custom marks into account
   const totalCalculatedMarks = useMemo(() => {
     return sections
       .filter(sec => sec.type !== 'None')
-      .reduce((sum, sec) => sum + (parseInt(sec.questions || 0) * parseInt(sec.marks_per_q || 0)), 0);
+      .reduce((sum, sec) => sum + calculateSectionSubtotal(sec), 0);
   }, [sections]);
 
   // Total topics weight
@@ -158,7 +575,9 @@ const QPGenerator = () => {
 
       const standardBlooms = ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create'];
       if (bloomsRes.success && bloomsRes.data.length > 0) {
-        const dbTaxonomies = bloomsRes.data.filter(b => b.status === 1).map(b => b.taxonomy);
+        const dbTaxonomies = bloomsRes.data
+          .filter(b => b.status === 1 && String(b.taxonomy || '').trim().toLowerCase() !== 'remembering')
+          .map(b => String(b.taxonomy || '').trim().toLowerCase() === 'remember' ? 'Remember' : b.taxonomy);
         const mergedBlooms = Array.from(new Set([...standardBlooms, ...dbTaxonomies]));
         setBlooms(mergedBlooms);
         setSelectedBlooms(mergedBlooms);
@@ -297,25 +716,25 @@ const QPGenerator = () => {
       setTotalMarks(70);
       setDuration('3 Hours');
       setSections([
-        { id: 1, name: 'Section A', type: 'MCQ', questions: 10, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(10).fill('auto') },
-        { id: 2, name: 'Section B', type: 'Short Answer', questions: 5, marks_per_q: 4, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto') },
-        { id: 3, name: 'Section C', type: 'Long Answer', questions: 3, marks_per_q: 10, choice_mode: 'none', sub_division: 'mixed', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'], question_cos: Array(3).fill('auto') }
+        { id: 1, name: 'Section A', type: 'MCQ', questions: 10, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(10).fill('auto'), question_blooms: Array(10).fill('auto') },
+        { id: 2, name: 'Section B', type: 'Short Answer', questions: 5, marks_per_q: 4, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto'), question_blooms: Array(5).fill('auto') },
+        { id: 3, name: 'Section C', type: 'Long Answer', questions: 3, marks_per_q: 10, choice_mode: 'none', sub_division: 'mixed', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'], question_cos: Array(3).fill('auto'), question_blooms: Array(3).fill('auto') }
       ]);
       showNotification('Examination title set to End Semester Examination. Sections auto-configured.');
     } else if (titleLower.includes('mid')) {
       setTotalMarks(40);
       setDuration('2 Hours');
       setSections([
-        { id: 1, name: 'Section A', type: 'Short Answer', questions: 5, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto') },
-        { id: 2, name: 'Section B', type: 'Long Answer', questions: 3, marks_per_q: 10, choice_mode: 'none', sub_division: 'mixed', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'], question_cos: Array(3).fill('auto') }
+        { id: 1, name: 'Section A', type: 'Short Answer', questions: 5, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto'), question_blooms: Array(5).fill('auto') },
+        { id: 2, name: 'Section B', type: 'Long Answer', questions: 3, marks_per_q: 10, choice_mode: 'none', sub_division: 'mixed', question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'], question_cos: Array(3).fill('auto'), question_blooms: Array(3).fill('auto') }
       ]);
       showNotification(`Examination title set to ${newTitle}. Sections auto-configured.`);
     } else if (titleLower.includes('continuous') || titleLower.includes('obe')) {
       setTotalMarks(30);
       setDuration('1.5 Hours');
       setSections([
-        { id: 1, name: 'Section A', type: 'Short Answer', questions: 5, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto') },
-        { id: 2, name: 'Section B', type: 'Long Answer', questions: 2, marks_per_q: 10, choice_mode: 'none', sub_division: 'two_subquestions', question_sub_divisions: ['two_subquestions', 'two_subquestions'], question_cos: Array(2).fill('auto') }
+        { id: 1, name: 'Section A', type: 'Short Answer', questions: 5, marks_per_q: 2, choice_mode: 'none', sub_division: 'none', question_cos: Array(5).fill('auto'), question_blooms: Array(5).fill('auto') },
+        { id: 2, name: 'Section B', type: 'Long Answer', questions: 2, marks_per_q: 10, choice_mode: 'none', sub_division: 'two_subquestions', question_sub_divisions: ['two_subquestions', 'two_subquestions'], question_cos: Array(2).fill('auto'), question_blooms: Array(2).fill('auto') }
       ]);
       showNotification(`Examination title set to ${newTitle}. Sections auto-configured.`);
     }
@@ -374,23 +793,37 @@ const QPGenerator = () => {
 
   const toggleDocSelection = (docId, e) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    setSelectedDocIds(prev =>
-      prev.includes(docId) ? prev.filter(id => id !== docId) : [...prev, docId]
-    );
-  };
-
-  const handleSelectAllDocs = () => {
-    const currentList = docScope === 'course' ? courseDocuments : allDocuments;
-    const allIds = currentList.map(d => d.id);
-    setSelectedDocIds(prev => Array.from(new Set([...prev, ...allIds])));
-    showNotification(`Selected all ${currentList.length} documents for AI question generation`);
+    const doc = [...courseDocuments, ...allDocuments].find(d => d.id === docId);
+    setSelectedDocIds(prev => {
+      const isAlreadySelected = prev.length === 1 && prev[0] === docId;
+      if (isAlreadySelected) {
+        return [];
+      } else {
+        if (doc && doc.course_id && String(doc.course_id) !== String(selectedCourse)) {
+          setSelectedCourse(String(doc.course_id));
+        }
+        return [docId];
+      }
+    });
   };
 
   const handleClearDocSelections = () => {
-    const currentList = docScope === 'course' ? courseDocuments : allDocuments;
-    const currentIds = new Set(currentList.map(d => d.id));
-    setSelectedDocIds(prev => prev.filter(id => !currentIds.has(id)));
-    showNotification('Cleared document selections');
+    setSelectedDocIds([]);
+    showNotification('Cleared document selection');
+  };
+
+  const handleDownloadDoc = async (doc, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (!doc || !doc.id) return;
+    try {
+      showNotification(`Downloading ${doc.file_name || 'document'}...`);
+      await documentService.downloadDocument(doc.id, doc.file_name);
+      showNotification(`✓ Downloaded ${doc.file_name || 'document'} successfully!`);
+    } catch (err) {
+      console.error('Download error:', err);
+      const downloadUrl = documentService.getDownloadUrl(doc.id);
+      window.open(downloadUrl, '_blank');
+    }
   };
 
   const handleOpenInspect = async (doc, e) => {
@@ -420,7 +853,8 @@ const QPGenerator = () => {
       choice_mode: 'none',
       sub_division: 'mixed',
       question_sub_divisions: ['two_subquestions', 'two_subquestions', 'none'],
-      question_cos: ['auto', 'auto', 'auto']
+      question_cos: ['auto', 'auto', 'auto'],
+      question_blooms: ['auto', 'auto', 'auto']
     };
     setSections([...sections, newSec]);
   };
@@ -431,7 +865,28 @@ const QPGenerator = () => {
       if (!updated[index].choice_mode) updated[index].choice_mode = 'none';
       if (!updated[index].sub_division) updated[index].sub_division = 'two_subquestions';
     }
-    updated[index][field] = (field === 'questions' || field === 'marks_per_q') ? Math.max(1, parseInt(value) || 1) : value;
+    const parsedVal = (field === 'questions' || field === 'marks_per_q') ? Math.max(1, parseInt(value) || 1) : value;
+    updated[index][field] = parsedVal;
+
+    if (field === 'marks_per_q') {
+      const newM = Math.max(2, parseInt(value) || 14);
+      if (Array.isArray(updated[index].question_sub_marks)) {
+        updated[index].question_sub_marks = updated[index].question_sub_marks.map(mObj => {
+          const half = Math.ceil(newM / 2);
+          const a = Math.min(mObj.q1_a || half, Math.max(1, newM - 1));
+          const b = Math.max(1, newM - a);
+          return {
+            ...mObj,
+            q1: newM,
+            q2: newM,
+            q1_a: a,
+            q1_b: b,
+            q2_a: a,
+            q2_b: b
+          };
+        });
+      }
+    }
 
     if (field === 'questions') {
       const numQ = Math.max(1, parseInt(value) || 1);
@@ -456,78 +911,27 @@ const QPGenerator = () => {
         currentCos.push('auto');
       }
       updated[index].question_cos = currentCos.slice(0, numQ);
-    }
 
-    setSections(updated);
-  };
-
-  const handleUpdateQuestionCO = (sectionIdx, qIdx, subKeyOrValue, valIfSubKey) => {
-    const updated = [...sections];
-    const sec = updated[sectionIdx];
-    const numQ = parseInt(sec.questions) || 1;
-    const isInternalChoice = sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice';
-    const currentList = Array.isArray(sec.question_cos) ? [...sec.question_cos] : [];
-    
-    while (currentList.length < numQ) {
-      currentList.push(isInternalChoice ? { q1: 'auto', q2: 'auto' } : 'auto');
-    }
-
-    if (isInternalChoice && (subKeyOrValue === 'q1' || subKeyOrValue === 'q2')) {
-      const existing = typeof currentList[qIdx] === 'object' && currentList[qIdx] !== null
-        ? { ...currentList[qIdx] }
-        : { q1: currentList[qIdx] || 'auto', q2: currentList[qIdx] || 'auto' };
-      existing[subKeyOrValue] = valIfSubKey;
-      currentList[qIdx] = existing;
-    } else {
-      currentList[qIdx] = subKeyOrValue;
-    }
-
-    sec.question_cos = currentList;
-    setSections(updated);
-  };
-
-  const handleAutoDistributeSectionCOs = (sectionIdx) => {
-    const updated = [...sections];
-    const sec = updated[sectionIdx];
-    const numQ = parseInt(sec.questions) || 1;
-    const isInternalChoice = sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice';
-    const coList = outcomes && outcomes.length > 0 ? outcomes.map(o => o.id) : ['CO1', 'CO2', 'CO3', 'CO4', 'CO5'];
-    const distributed = [];
-    
-    for (let i = 0; i < numQ; i++) {
-      if (isInternalChoice) {
-        distributed.push({
-          q1: coList[(i * 2) % coList.length],
-          q2: coList[(i * 2 + 1) % coList.length]
-        });
-      } else {
-        distributed.push(coList[i % coList.length]);
+      // Sync question_blooms length
+      const currentBlooms = Array.isArray(updated[index].question_blooms) ? [...updated[index].question_blooms] : [];
+      while (currentBlooms.length < numQ) {
+        currentBlooms.push('auto');
       }
+      updated[index].question_blooms = currentBlooms.slice(0, numQ);
     }
-    sec.question_cos = distributed;
+
     setSections(updated);
-    showNotification(`Distributed questions across ${coList.length} Course Outcomes for ${getDynamicSectionName(sections, sectionIdx)}`);
   };
 
-  const handleResetSectionCOs = (sectionIdx) => {
-    const updated = [...sections];
-    const sec = updated[sectionIdx];
-    const numQ = parseInt(sec.questions) || 1;
-    const isInternalChoice = sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice';
-    sec.question_cos = new Array(numQ).fill(isInternalChoice ? { q1: 'auto', q2: 'auto' } : 'auto');
-    setSections(updated);
-    showNotification(`Reset all question target COs to Auto for ${getDynamicSectionName(sections, sectionIdx)}`);
-  };
-
-  const handleUpdatePairSubDivision = (sectionIdx, pairIdx, value) => {
+  const handleUpdateQuestionSubDivision = (sectionIdx, qIdx, value) => {
     const updated = [...sections];
     const sec = updated[sectionIdx];
     const numQ = parseInt(sec.questions) || 1;
     const currentList = Array.isArray(sec.question_sub_divisions) ? [...sec.question_sub_divisions] : [];
     while (currentList.length < numQ) {
-      currentList.push(sec.sub_division === 'none' ? 'none' : 'two_subquestions');
+      currentList.push('two_subquestions');
     }
-    currentList[pairIdx] = value;
+    currentList[qIdx] = value;
     sec.question_sub_divisions = currentList;
 
     const allTwo = currentList.every(v => v === 'two_subquestions');
@@ -539,31 +943,214 @@ const QPGenerator = () => {
     setSections(updated);
   };
 
-  const handleSetAllPairSubDivisions = (sectionIdx, value) => {
+  const handleUpdateQuestionMark = (sectionIdx, qIdx, key, val) => {
     const updated = [...sections];
     const sec = updated[sectionIdx];
     const numQ = parseInt(sec.questions) || 1;
-    sec.sub_division = value;
-    sec.question_sub_divisions = new Array(numQ).fill(value);
+    const currentMarksList = Array.isArray(sec.question_sub_marks) ? [...sec.question_sub_marks] : [];
+    while (currentMarksList.length < numQ) {
+      currentMarksList.push(getQuestionMarks(sec, currentMarksList.length));
+    }
+    const currentObj = { ...getQuestionMarks(sec, qIdx) };
+    const targetMarks = Math.max(2, parseInt(sec.marks_per_q) || 14);
+    const rawVal = parseInt(val) || 0;
+
+    if (key === 'q1_a') {
+      const clamped = Math.min(Math.max(1, rawVal), Math.max(1, targetMarks - 1));
+      currentObj.q1_a = clamped;
+      currentObj.q1_b = Math.max(1, targetMarks - clamped);
+      // Auto-mirror symmetrical pair by default
+      currentObj.q2_a = currentObj.q1_a;
+      currentObj.q2_b = currentObj.q1_b;
+    } else if (key === 'q1_b') {
+      const clamped = Math.min(Math.max(1, rawVal), Math.max(1, targetMarks - 1));
+      currentObj.q1_b = clamped;
+      currentObj.q1_a = Math.max(1, targetMarks - clamped);
+      // Auto-mirror symmetrical pair by default
+      currentObj.q2_b = currentObj.q1_b;
+      currentObj.q2_a = currentObj.q1_a;
+    } else if (key === 'q2_a') {
+      const clamped = Math.min(Math.max(1, rawVal), Math.max(1, targetMarks - 1));
+      currentObj.q2_a = clamped;
+      currentObj.q2_b = Math.max(1, targetMarks - clamped);
+    } else if (key === 'q2_b') {
+      const clamped = Math.min(Math.max(1, rawVal), Math.max(1, targetMarks - 1));
+      currentObj.q2_b = clamped;
+      currentObj.q2_a = Math.max(1, targetMarks - clamped);
+    } else {
+      const numVal = Math.max(1, rawVal || 1);
+      currentObj[key] = numVal;
+      if (key === 'q1') currentObj.q2 = numVal;
+    }
+
+    currentMarksList[qIdx] = currentObj;
+    sec.question_sub_marks = currentMarksList;
     setSections(updated);
   };
 
-  const handleSetStandardPairPattern = (sectionIdx) => {
+  const handleUpdateQuestionCO = (sectionIdx, qIdx, key, val) => {
     const updated = [...sections];
     const sec = updated[sectionIdx];
     const numQ = parseInt(sec.questions) || 1;
-    const newDivs = [];
-    for (let i = 0; i < numQ; i++) {
-      if (i < numQ - 1) {
-        newDivs.push('two_subquestions');
-      } else {
-        newDivs.push('none');
-      }
+    const currentCosList = Array.isArray(sec.question_cos) ? [...sec.question_cos] : [];
+    while (currentCosList.length < numQ) {
+      currentCosList.push(getQuestionCOs(sec, currentCosList.length));
     }
-    sec.sub_division = numQ > 1 ? 'mixed' : 'none';
-    sec.question_sub_divisions = newDivs;
+    const currentObj = { ...getQuestionCOs(sec, qIdx) };
+    currentObj[key] = val;
+    // For single question without key, set both
+    if (key === 'q1' && currentObj.q2 === 'auto') currentObj.q2 = val;
+
+    currentCosList[qIdx] = currentObj;
+    sec.question_cos = currentCosList;
     setSections(updated);
-    showNotification(`Section configured: Questions 1-${Math.max(1, numQ - 1)} with Sub-questions and Question ${numQ} as Single Question.`);
+  };
+
+  const handleSetAllSubQuestionsPattern = (sectionIdx, aMarks = 8, bMarks = 6) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    sec.sub_division = 'two_subquestions';
+    sec.question_sub_divisions = new Array(numQ).fill('two_subquestions');
+    sec.marks_per_q = aMarks + bMarks;
+    sec.question_sub_marks = Array.from({ length: numQ }).map(() => ({
+      q1_a: aMarks,
+      q1_b: bMarks,
+      q2_a: aMarks,
+      q2_b: bMarks,
+      q1: aMarks + bMarks,
+      q2: aMarks + bMarks
+    }));
+    setSections(updated);
+    showNotification(`Section configured: All questions set to 2 Sub-questions (${aMarks}M + ${bMarks}M pattern).`);
+  };
+
+  const handleSetAllSingleQuestions = (sectionIdx) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    const baseM = parseInt(sec.marks_per_q) || 14;
+    sec.sub_division = 'none';
+    sec.question_sub_divisions = new Array(numQ).fill('none');
+    sec.question_sub_marks = Array.from({ length: numQ }).map(() => ({
+      q1: baseM,
+      q2: baseM,
+      q1_a: Math.ceil(baseM / 2),
+      q1_b: baseM - Math.ceil(baseM / 2),
+      q2_a: Math.ceil(baseM / 2),
+      q2_b: baseM - Math.ceil(baseM / 2)
+    }));
+    setSections(updated);
+    showNotification(`Section configured: All questions set to Single Questions (${baseM}M).`);
+  };
+
+  const handleAutoDistributeSectionCOs = (sectionIdx) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    const coList = outcomes && outcomes.length > 0 ? outcomes.map(o => o.id) : ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6'];
+    const distributed = [];
+    
+    let coCursor = 0;
+    for (let i = 0; i < numQ; i++) {
+      const co_1_a = coList[coCursor % coList.length];
+      coCursor++;
+      const co_1_b = coList[coCursor % coList.length];
+      coCursor++;
+      const co_2_a = co_1_a;
+      const co_2_b = co_1_b;
+
+      distributed.push({
+        q1: co_1_a,
+        q2: co_2_a,
+        q1_a: co_1_a,
+        q1_b: co_1_b,
+        q2_a: co_2_a,
+        q2_b: co_2_b
+      });
+    }
+    sec.question_cos = distributed;
+    setSections(updated);
+    showNotification(`Auto-distributed COs evenly across sub-questions (a & b) for ${getDynamicSectionName(sections, sectionIdx)}`);
+  };
+
+  const handleResetSectionCOs = (sectionIdx) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    sec.question_cos = new Array(numQ).fill({
+      q1: 'auto',
+      q2: 'auto',
+      q1_a: 'auto',
+      q1_b: 'auto',
+      q2_a: 'auto',
+      q2_b: 'auto'
+    });
+    setSections(updated);
+    showNotification(`Reset all question target COs to Auto for ${getDynamicSectionName(sections, sectionIdx)}`);
+  };
+
+  const handleUpdateQuestionBloom = (sectionIdx, qIdx, key, val) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    const currentBloomsList = Array.isArray(sec.question_blooms) ? [...sec.question_blooms] : [];
+    while (currentBloomsList.length < numQ) {
+      currentBloomsList.push(getQuestionBlooms(sec, currentBloomsList.length));
+    }
+    const currentObj = { ...getQuestionBlooms(sec, qIdx) };
+    currentObj[key] = val;
+    if (key === 'q1' && currentObj.q2 === 'auto') currentObj.q2 = val;
+
+    currentBloomsList[qIdx] = currentObj;
+    sec.question_blooms = currentBloomsList;
+    setSections(updated);
+  };
+
+  const handleAutoDistributeSectionBlooms = (sectionIdx) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    const activeBlooms = (blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS.map(b => b.value)).map(b => typeof b === 'object' ? b.value : b);
+    const distributed = [];
+
+    let bCursor = 0;
+    for (let i = 0; i < numQ; i++) {
+      const b_1_a = activeBlooms[bCursor % activeBlooms.length];
+      bCursor++;
+      const b_1_b = activeBlooms[bCursor % activeBlooms.length];
+      bCursor++;
+      const b_2_a = b_1_a;
+      const b_2_b = b_1_b;
+
+      distributed.push({
+        q1: b_1_a,
+        q2: b_2_a,
+        q1_a: b_1_a,
+        q1_b: b_1_b,
+        q2_a: b_2_a,
+        q2_b: b_2_b
+      });
+    }
+    sec.question_blooms = distributed;
+    setSections(updated);
+    showNotification(`Auto-distributed Bloom levels evenly across questions for ${getDynamicSectionName(sections, sectionIdx)}`);
+  };
+
+  const handleResetSectionBlooms = (sectionIdx) => {
+    const updated = [...sections];
+    const sec = updated[sectionIdx];
+    const numQ = parseInt(sec.questions) || 1;
+    sec.question_blooms = new Array(numQ).fill({
+      q1: 'auto',
+      q2: 'auto',
+      q1_a: 'auto',
+      q1_b: 'auto',
+      q2_a: 'auto',
+      q2_b: 'auto'
+    });
+    setSections(updated);
+    showNotification(`Reset all question target Bloom levels to Auto for ${getDynamicSectionName(sections, sectionIdx)}`);
   };
 
   const handleDeleteSection = (index) => {
@@ -593,13 +1180,17 @@ const QPGenerator = () => {
       const res = await qpService.extractCOs(payload);
       if (res.success && res.found && res.outcomes && res.outcomes.length > 0) {
         setOutcomes(res.outcomes);
+        if (res.units && res.units.length > 0) {
+          setTopics(res.units);
+        }
         setCoDetectionStatus('found');
+        setCoSourceInfo(res.source_type === 'document' ? 'Extracted directly from Document' : 'Synthesized from Syllabus Units');
         setNewCoId(`CO${res.outcomes.length + 1}`);
-        showNotification(res.message || `✓ Automatically extracted ${res.outcomes.length} Course Outcomes from documents!`);
+        showNotification(res.message || `✓ Automatically configured ${res.outcomes.length} Course Outcomes and Units!`);
       } else {
         setCoDetectionStatus('not_found');
         showNotification(
-          res.message || '⚠️ No Course Outcomes (COs) detected in the uploaded documents. Please add them manually or click Auto-Generate.',
+          res.message || '⚠️ No Course Outcomes detected in the uploaded documents. Please add them manually or click Auto-Generate.',
           'error'
         );
       }
@@ -612,22 +1203,54 @@ const QPGenerator = () => {
   };
 
   // Auto-generate syllabus-aligned COs based on course
-  const handleAutoGenerateCOsFromCourse = () => {
-    const currentCourse = courses.find(c => String(c.id) === String(selectedCourse));
-    const cName = currentCourse ? currentCourse.course_name : 'the course domain';
-    
-    const generated = [
-      { id: 'CO1', description: `Explain foundational principles, architectural models, and core concepts in ${cName}`, bloom_level: 'Understand', unit: 'Unit 1' },
-      { id: 'CO2', description: `Apply design patterns, methods, and practical frameworks to solve standard problems in ${cName}`, bloom_level: 'Apply', unit: 'Unit 2' },
-      { id: 'CO3', description: `Analyze component hierarchies, data structures, and computational workflows in ${cName}`, bloom_level: 'Analyze', unit: 'Unit 3' },
-      { id: 'CO4', description: `Evaluate error handling, synchronization, resource constraints, and performance bottlenecks in ${cName}`, bloom_level: 'Evaluate', unit: 'Unit 4' },
-      { id: 'CO5', description: `Synthesize modular and scalable solutions adhering to industry specifications for ${cName}`, bloom_level: 'Create', unit: 'Unit 5' }
-    ];
+  const handleAutoGenerateCOsFromCourse = async () => {
+    if (!selectedCourse && selectedDocIds.length === 0 && !materialText.trim()) {
+      showNotification('Please select a course or reference documents first', 'error');
+      return;
+    }
 
-    setOutcomes(generated);
-    setCoDetectionStatus('found');
-    setNewCoId('CO6');
-    showNotification(`🪄 Auto-generated 5 syllabus-aligned Course Outcomes for ${cName}!`);
+    setExtractingCOs(true);
+    setCoDetectionStatus('idle');
+    try {
+      const payload = {
+        course_id: selectedCourse ? parseInt(selectedCourse) : null,
+        document_ids: selectedDocIds,
+        material_text: materialText,
+        force_synthesize: true
+      };
+
+      const res = await qpService.extractCOs(payload);
+      if (res.success && res.outcomes && res.outcomes.length > 0) {
+        setOutcomes(res.outcomes);
+        if (res.units && res.units.length > 0) {
+          setTopics(res.units);
+        }
+        setCoDetectionStatus('found');
+        setCoSourceInfo('Synthesized from Syllabus Units & Topics');
+        setNewCoId(`CO${res.outcomes.length + 1}`);
+        showNotification(res.message || `🪄 Synthesized 6 syllabus-grounded Course Outcomes!`);
+      } else {
+        const currentCourse = courses.find(c => String(c.id) === String(selectedCourse));
+        const cName = currentCourse ? currentCourse.course_name : 'the course domain';
+        const generated = [
+          { id: 'CO1', description: `Explain foundational principles, architectural models, and core concepts in ${cName}`, bloom_level: 'Understand', unit: 'Unit 1' },
+          { id: 'CO2', description: `Apply design patterns, methods, and practical frameworks to solve standard problems in ${cName}`, bloom_level: 'Apply', unit: 'Unit 2' },
+          { id: 'CO3', description: `Analyze component hierarchies, data structures, and computational workflows in ${cName}`, bloom_level: 'Analyze', unit: 'Unit 3' },
+          { id: 'CO4', description: `Evaluate error handling, synchronization, resource constraints, and performance bottlenecks in ${cName}`, bloom_level: 'Evaluate', unit: 'Unit 4' },
+          { id: 'CO5', description: `Synthesize modular and scalable solutions adhering to industry specifications for ${cName}`, bloom_level: 'Create', unit: 'Unit 4' },
+          { id: 'CO6', description: `Design advanced system implementations, emerging techniques, and architectural optimizations for ${cName}`, bloom_level: 'Create', unit: 'Unit 4' }
+        ];
+        setOutcomes(generated);
+        setCoDetectionStatus('found');
+        setCoSourceInfo('Standard Course Outcomes');
+        setNewCoId('CO7');
+        showNotification(`🪄 Populated standard Course Outcomes for ${cName}!`);
+      }
+    } catch (err) {
+      showNotification(err.message || 'Failed to synthesize Course Outcomes', 'error');
+    } finally {
+      setExtractingCOs(false);
+    }
   };
 
   // Outcomes Management Handlers
@@ -665,33 +1288,85 @@ const QPGenerator = () => {
 
   const handleResetOutcomes = () => {
     setOutcomes(DEFAULT_COS);
-    setNewCoId('CO6');
+    setNewCoId('CO7');
     setCoDetectionStatus('idle');
     showNotification('Reset to standard Bloom-mapped Course Outcomes');
   };
 
-  // Topics Management
-  const handleAddTopic = () => {
-    if (!newTopicName.trim()) {
-      showNotification('Please enter topic or chapter name', 'error');
+  // Dynamic Units & Topics Extraction Handlers
+  const handleExtractUnitsFromDocuments = async () => {
+    if (!selectedCourse && selectedDocIds.length === 0 && !materialText.trim()) {
+      showNotification('Please select a course or reference documents first', 'error');
       return;
     }
-    const newTopic = {
-      id: Date.now(),
-      name: newTopicName.trim(),
-      weight: parseInt(newTopicWeight) || 25
-    };
-    setTopics([...topics, newTopic]);
-    setNewTopicName('');
-    setNewTopicWeight(25);
+
+    setExtractingUnits(true);
+    try {
+      const payload = {
+        course_id: selectedCourse ? parseInt(selectedCourse) : null,
+        document_ids: selectedDocIds,
+        pasted_text: materialText
+      };
+
+      const res = await qpService.extractUnits(payload);
+      if (res.success && res.units && res.units.length > 0) {
+        setTopics(res.units);
+        const totalTop = res.units.reduce((acc, u) => acc + (u.topics?.length || 0), 0);
+        showNotification(res.message || `✓ Extracted ${res.units.length} units and ${totalTop} topics from syllabus document!`);
+      } else {
+        showNotification(res.message || '⚠️ No units detected. Standard units populated.', 'error');
+      }
+    } catch (err) {
+      showNotification(err.message || 'Failed to extract curriculum units', 'error');
+    } finally {
+      setExtractingUnits(false);
+    }
+  };
+
+  const handleUpdateUnitTitle = (unitIdx, title) => {
+    const updated = [...topics];
+    updated[unitIdx].unit_title = title;
+    updated[unitIdx].name = `${updated[unitIdx].unit_label || updated[unitIdx].unit_key}: ${title}`;
+    setTopics(updated);
+  };
+
+  const handleAddConceptToUnit = (unitIdx) => {
+    const val = (unitConceptInputs[unitIdx] || '').trim();
+    if (!val) return;
+    const updated = [...topics];
+    if (!Array.isArray(updated[unitIdx].topics)) {
+      updated[unitIdx].topics = [];
+    }
+    if (!updated[unitIdx].topics.includes(val)) {
+      updated[unitIdx].topics.push(val);
+      setTopics(updated);
+      setUnitConceptInputs(prev => ({ ...prev, [unitIdx]: '' }));
+      showNotification(`Added topic "${val}" to ${updated[unitIdx].unit_label || updated[unitIdx].unit_key}`);
+    } else {
+      showNotification('Topic already exists in this unit', 'error');
+    }
+  };
+
+  const handleDeleteConceptFromUnit = (unitIdx, conceptIdx) => {
+    const updated = [...topics];
+    if (Array.isArray(updated[unitIdx].topics)) {
+      updated[unitIdx].topics = updated[unitIdx].topics.filter((_, i) => i !== conceptIdx);
+      setTopics(updated);
+    }
   };
 
   const handleDeleteTopic = (index) => {
     if (topics.length <= 1) {
-      showNotification('Exam blueprint must contain at least one topic', 'error');
+      showNotification('Exam blueprint must contain at least one unit', 'error');
       return;
     }
-    setTopics(topics.filter((_, i) => i !== index));
+    const updated = topics.filter((_, i) => i !== index);
+    const baseW = Math.floor(100 / updated.length);
+    const rem = 100 - (baseW * updated.length);
+    updated.forEach((u, i) => {
+      u.weight = baseW + (i === updated.length - 1 ? rem : 0);
+    });
+    setTopics(updated);
   };
 
   const handleUpdateTopicWeight = (index, weight) => {
@@ -700,16 +1375,69 @@ const QPGenerator = () => {
     setTopics(updated);
   };
 
+  const handleAddCustomUnit = (unitLabel, unitTitle, hours, weight) => {
+    const nextIdx = topics.length + 1;
+    const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][topics.length] || String(nextIdx);
+    const newU = {
+      id: nextIdx,
+      unit_key: `Unit ${nextIdx}`,
+      unit_label: unitLabel || `Unit-${roman}`,
+      unit_title: unitTitle || `Advanced Topic Area ${nextIdx}`,
+      name: `${unitLabel || `Unit-${roman}`}: ${unitTitle || `Advanced Topic Area ${nextIdx}`}`,
+      hours: hours || '10 Hours',
+      weight: parseInt(weight) || 20,
+      topics: ['Fundamental Concepts', 'Implementation Details']
+    };
+    setTopics([...topics, newU]);
+    showNotification(`Added ${newU.unit_label}`);
+  };
+
   const handlePreloadDefaultTopics = () => {
     const currentCourse = courses.find(c => String(c.id) === String(selectedCourse));
     const courseName = currentCourse ? currentCourse.course_name : 'Computer Science';
     setTopics([
-      { id: 1, name: `${courseName}: Fundamentals & Core Concepts`, weight: 25 },
-      { id: 2, name: `${courseName}: Algorithmic Paradigms & Analysis`, weight: 25 },
-      { id: 3, name: `${courseName}: Practical System Architectures`, weight: 25 },
-      { id: 4, name: `${courseName}: Performance Evaluation & Trade-offs`, weight: 25 }
+      {
+        id: 1,
+        unit_key: 'Unit 1',
+        unit_label: 'Unit-I',
+        unit_title: `${courseName}: Foundations & Core Architecture`,
+        name: `Unit-I: ${courseName}: Foundations & Core Architecture`,
+        hours: '11 Hours',
+        weight: 25,
+        topics: ['System Fundamentals', 'Architectural Principles', 'Core Protocols', 'Runtime Environments']
+      },
+      {
+        id: 2,
+        unit_key: 'Unit 2',
+        unit_label: 'Unit-II',
+        unit_title: `${courseName}: Data Models & Practical Paradigms`,
+        name: `Unit-II: ${courseName}: Data Models & Practical Paradigms`,
+        hours: '13 Hours',
+        weight: 25,
+        topics: ['Data Modeling', 'Structural Patterns', 'Query Processing', 'State Handling']
+      },
+      {
+        id: 3,
+        unit_key: 'Unit 3',
+        unit_label: 'Unit-III',
+        unit_title: `${courseName}: Component Implementations & Storage`,
+        name: `Unit-III: ${courseName}: Component Implementations & Storage`,
+        hours: '13 Hours',
+        weight: 25,
+        topics: ['Component Architecture', 'CRUD Operations', 'Storage Subsystems', 'API Handlers']
+      },
+      {
+        id: 4,
+        unit_key: 'Unit 4',
+        unit_label: 'Unit-IV',
+        unit_title: `${courseName}: Security, Communication & Optimization`,
+        name: `Unit-IV: ${courseName}: Security, Communication & Optimization`,
+        hours: '11 Hours',
+        weight: 25,
+        topics: ['Network Protocols', 'Security Controls', 'Performance Optimization', 'Fault Tolerance']
+      }
     ]);
-    showNotification('Preloaded standardized topics for this course!');
+    showNotification(`Preloaded 4 standardized curriculum units for ${courseName}!`);
   };
 
   // Difficulty Sliders Handling
@@ -761,6 +1489,7 @@ const QPGenerator = () => {
 
     setGenerating(true);
     setGeneratedPaper(null);
+    setSavedPaper(null);
 
     try {
       const payload = {
@@ -773,21 +1502,35 @@ const QPGenerator = () => {
         sem: parseInt(sem),
         total_marks: totalCalculatedMarks,
         duration,
-        exam_date: examDate,
+        exam_date: formatExamDate(examDate),
         special_instructions: specialInstructions,
         sections: sections
           .filter(s => s.type !== 'None')
-          .map((s, activeIdx) => ({
-            name: `Section ${String.fromCharCode(65 + activeIdx)}`,
-            type: s.type,
-            questions: s.questions,
-            marks_per_q: s.marks_per_q,
-            choice_mode: s.choice_mode || 'none',
-            sub_division: s.sub_division || (s.type === 'Long Answer' ? 'two_subquestions' : 'none'),
-            question_sub_divisions: s.question_sub_divisions || [],
-            question_cos: s.question_cos || []
-          })),
-        topics: topics.map(t => ({ name: t.name, weight: t.weight })),
+          .map((s, activeIdx) => {
+            const numQ = parseInt(s.questions) || 1;
+            return {
+              name: `Section ${String.fromCharCode(65 + activeIdx)}`,
+              type: s.type,
+              questions: numQ,
+              marks_per_q: s.marks_per_q,
+              choice_mode: s.choice_mode || 'none',
+              sub_division: s.sub_division || (s.type === 'Long Answer' ? 'two_subquestions' : 'none'),
+              question_sub_divisions: Array.from({ length: numQ }).map((_, qIdx) => getQuestionSubDivision(s, qIdx)),
+              question_sub_marks: Array.from({ length: numQ }).map((_, qIdx) => getQuestionMarks(s, qIdx)),
+              question_cos: Array.from({ length: numQ }).map((_, qIdx) => getQuestionCOs(s, qIdx)),
+              question_blooms: Array.from({ length: numQ }).map((_, qIdx) => getQuestionBlooms(s, qIdx))
+            };
+          }),
+        topics: topics.map(t => ({
+          id: t.id,
+          unit_key: t.unit_key || (t.id ? `Unit ${t.id}` : undefined),
+          unit_label: t.unit_label || (t.id ? `Unit ${t.id}` : undefined),
+          unit_title: t.unit_title || t.name,
+          name: t.name || (t.unit_title ? `${t.unit_label || t.unit_key || ''}: ${t.unit_title}` : `Topic ${t.id}`),
+          hours: t.hours || '',
+          weight: parseInt(t.weight) || 25,
+          topics: Array.isArray(t.topics) ? t.topics : []
+        })),
         outcomes: outcomes.map(o => ({ id: o.id, description: o.description, bloom_level: o.bloom_level, unit: o.unit })),
         blooms: selectedBlooms,
         difficulty: difficulty
@@ -838,12 +1581,33 @@ const QPGenerator = () => {
 
       const res = await qpService.save(payload);
       if (res.success) {
-        showNotification('Question Paper successfully saved to department archives!');
+        const fullPaper = {
+          ...res.data,
+          title: res.data.title || generatedPaper.title || title,
+          course_name: res.data.course_name || generatedPaper.course_name,
+          course_code: res.data.course_code || generatedPaper.course_code,
+          total_marks: res.data.total_marks || generatedPaper.total_marks || totalCalculatedMarks
+        };
+        setSavedPaper(fullPaper);
+        showNotification('Question Paper successfully saved to department archives! You can now password-protect it.');
+        return fullPaper;
       }
     } catch (err) {
       showNotification(err.message || 'Failed to save paper', 'error');
+      return null;
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleOpenProtectModal = async () => {
+    if (!savedPaper) {
+      const saved = await handleSaveToArchive();
+      if (saved && saved.id) {
+        setShowProtectModal(true);
+      }
+    } else {
+      setShowProtectModal(true);
     }
   };
 
@@ -1202,11 +1966,12 @@ const QPGenerator = () => {
                 required
               />
               <FormInput
-                label="Exam Date"
+                label="Exam Date (Select Date)"
                 name="examDate"
+                type="date"
                 value={examDate}
                 onChange={(e) => setExamDate(e.target.value)}
-                placeholder="e.g. Sep 13, 2026"
+                title="Click calendar icon to select exam date"
                 required
               />
               <SelectInput
@@ -1218,11 +1983,13 @@ const QPGenerator = () => {
                 required
               />
               <FormInput
-                label="Academic Year"
+                label="Academic Year (Locked)"
                 name="academicYear"
                 value={academicYear}
-                onChange={(e) => setAcademicYear(e.target.value)}
-                placeholder="e.g. 2024-25"
+                disabled={true}
+                readOnly={true}
+                title="Academic year is determined automatically from system date and cannot be modified"
+                style={{ opacity: 0.8, cursor: 'not-allowed', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                 required
               />
             </div>
@@ -1271,38 +2038,8 @@ const QPGenerator = () => {
                 <h3 className="syllabus-panel-title">Syllabus & Course Materials (Auto-Fetched from DB)</h3>
               </div>
 
-              {/* Direct Material Textarea */}
-              <div>
-                <div className="material-editor-label">
-                  <span>Edit / Paste Material Text directly:</span>
-                  {materialText && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => setMaterialText('')}
-                      style={{ fontSize: '0.75rem', padding: '2px 8px', color: '#ef4444' }}
-                    >
-                      Clear Text
-                    </button>
-                  )}
-                </div>
-                <div className="material-textarea-wrapper">
-                  <textarea
-                    className="material-textarea"
-                    placeholder="Paste course notes, study sheets, chapter text, or syllabus content here..."
-                    value={materialText}
-                    onChange={(e) => setMaterialText(e.target.value)}
-                    rows={5}
-                  />
-                </div>
-                <div className="material-counters-bar">
-                  <div>Words: <span>{wordCount}</span></div>
-                  <div>Characters: <span>{charCount.toLocaleString()}</span></div>
-                </div>
-              </div>
-
               {/* Reference Documents Browser */}
-              <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '18px' }}>
+              <div style={{ marginTop: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
                     <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#f1f5f9' }}>
@@ -1310,7 +2047,7 @@ const QPGenerator = () => {
                       <span>Available Reference Documents ({docScope === 'course' ? courseDocuments.length : allDocuments.length})</span>
                     </h4>
                     <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '3px 0 0 0' }}>
-                      Click directly on any document card to select or remove it for AI question generation.
+                      Select one document at a time to generate the examination paper.
                     </p>
                   </div>
 
@@ -1355,19 +2092,10 @@ const QPGenerator = () => {
                     <div style={{ display: 'flex', gap: '6px' }}>
                       <button
                         type="button"
-                        onClick={handleSelectAllDocs}
-                        className="btn btn-secondary btn-sm"
-                        style={{ fontSize: '0.76rem', padding: '4px 8px' }}
-                        title="Select all documents in this category"
-                      >
-                        ⚡ Select All
-                      </button>
-                      <button
-                        type="button"
                         onClick={handleClearDocSelections}
                         className="btn btn-secondary btn-sm"
                         style={{ fontSize: '0.76rem', padding: '4px 8px' }}
-                        title="Deselect all documents"
+                        title="Deselect document"
                       >
                         ✕ Clear
                       </button>
@@ -1382,7 +2110,7 @@ const QPGenerator = () => {
                       color: selectedDocIds.length > 0 ? '#60a5fa' : 'var(--text-secondary)',
                       border: selectedDocIds.length > 0 ? '1px solid rgba(59, 130, 246, 0.35)' : '1px solid var(--border-color)'
                     }}>
-                      {selectedDocIds.length} selected for AI
+                      {selectedDocIds.length > 0 ? '1 Document Selected for AI' : 'Select 1 Document for AI'}
                     </span>
                   </div>
                 </div>
@@ -1397,7 +2125,7 @@ const QPGenerator = () => {
                     borderRadius: '8px',
                     border: '1px dashed rgba(255, 255, 255, 0.1)'
                   }}>
-                    ℹ️ No uploaded reference files found in this category. You can drag and drop files above or paste material directly.
+                    ℹ️ No uploaded reference files found in this category.
                   </div>
                 ) : (
                   <div className="doc-selection-grid">
@@ -1408,13 +2136,14 @@ const QPGenerator = () => {
                           key={doc.id}
                           className={`doc-selection-card ${isSelected ? 'selected' : ''}`}
                           onClick={(e) => toggleDocSelection(doc.id, e)}
-                          title={isSelected ? 'Click to deselect/remove from AI generation' : 'Click to select for AI generation'}
+                          title={isSelected ? 'Click to deselect' : 'Click to select this document for AI question generation'}
                         >
                           <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: 1, marginRight: '6px' }}>
                                 <input
-                                  type="checkbox"
+                                  type="radio"
+                                  name="selectedDoc"
                                   checked={isSelected}
                                   onChange={(e) => toggleDocSelection(doc.id, e)}
                                   onClick={(e) => e.stopPropagation()}
@@ -1583,7 +2312,7 @@ const QPGenerator = () => {
 
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: sec.type === 'Long Answer' ? '1.1fr 0.7fr 0.7fr 1.2fr 1.3fr' : '1.5fr 1fr 1fr',
+                    gridTemplateColumns: sec.type === 'Long Answer' ? '1.2fr 0.8fr 0.8fr 1.2fr' : '1.5fr 1fr 1fr',
                     gap: '12px',
                     alignItems: 'end'
                   }}>
@@ -1616,7 +2345,7 @@ const QPGenerator = () => {
                     </div>
 
                     <div>
-                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '4px' }}>Marks / Q</label>
+                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '4px' }}>Base Marks / Q</label>
                       <input
                         type="number"
                         className="form-control"
@@ -1650,362 +2379,765 @@ const QPGenerator = () => {
                         </select>
                       </div>
                     )}
+                  </div>
 
-                    {sec.type === 'Long Answer' && (
-                      <div>
-                        <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '4px', color: '#93c5fd', fontWeight: 600 }}>
-                          🧩 Default Sub-division
-                        </label>
-                        <select
-                          className="form-control"
-                          value={sec.sub_division === 'mixed' ? 'mixed' : (sec.sub_division || 'two_subquestions')}
-                          onChange={(e) => {
-                            if (e.target.value === 'standard') {
-                              handleSetStandardPairPattern(sIdx);
-                            } else if (e.target.value !== 'mixed') {
-                              handleSetAllPairSubDivisions(sIdx, e.target.value);
-                            }
-                          }}
-                          style={{
-                            borderColor: 'rgba(59, 130, 246, 0.4)',
-                            background: 'rgba(30, 58, 138, 0.15)',
-                            color: '#e2e8f0',
-                            fontSize: '0.82rem',
-                            fontWeight: 600
-                          }}
-                        >
-                          <option value="two_subquestions">
-                            All 2 Sub-questions ({Math.ceil(marksPerQ / 2)}M + {marksPerQ - Math.ceil(marksPerQ / 2)}M)
-                          </option>
-                          <option value="none">
-                            All None (Single {marksPerQ}M Question)
-                          </option>
-                          <option value="standard">
-                            Standard Pattern (Sub-Qs + Single)
-                          </option>
-                          {sec.sub_division === 'mixed' && (
-                            <option value="mixed" disabled>
-                              Custom / Mixed per Question
-                            </option>
-                          )}
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Per-Question Sub-division Customizer for Long Answers */}
-                    {sec.type === 'Long Answer' && !isNone && (
+                  {/* Question Blueprint: Marks, Sub-divisions (8+6, etc.) & CO Mapping */}
+                  {!isNone && (
+                    <div style={{
+                      gridColumn: '1 / -1',
+                      marginTop: '14px',
+                      padding: '16px 18px',
+                      borderRadius: '10px',
+                      background: 'rgba(15, 23, 42, 0.65)',
+                      border: '1px solid rgba(59, 130, 246, 0.25)'
+                    }}>
+                      {/* Header & Quick Action Buttons */}
                       <div style={{
-                        gridColumn: '1 / -1',
-                        marginTop: '12px',
-                        padding: '14px 16px',
-                        borderRadius: '8px',
-                        background: 'rgba(30, 58, 138, 0.12)',
-                        border: '1px solid rgba(59, 130, 246, 0.25)'
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '14px',
+                        flexWrap: 'wrap',
+                        gap: '10px',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                        paddingBottom: '12px'
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: '1.05rem' }}>🧩</span>
-                            <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#93c5fd' }}>
-                              Question-by-Question Sub-divisions (Q{qRange.startQ} to Q{qRange.endQ})
-                            </span>
-                            <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                              {sec.choice_mode === 'internal_choice'
-                                ? `${numQuestions} Pairs with Choice (${numQuestions * 2} Questions Total)`
-                                : `${numQuestions} Direct Questions (No Internal Choice)`}
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => handleSetStandardPairPattern(sIdx)}
-                              style={{ fontSize: '0.74rem', padding: '3px 9px', background: 'rgba(59, 130, 246, 0.25)', borderColor: 'rgba(59, 130, 246, 0.5)', color: '#93c5fd', fontWeight: 600 }}
-                              title="Set Questions 1 to N-1 as 2 sub-questions (a & b) and final Question as Single Question"
-                            >
-                              ⚡ Standard (Q{qRange.startQ}-{Math.max(qRange.startQ, qRange.endQ - (sec.choice_mode === 'internal_choice' ? 2 : 1))} Sub-Qs + Single Q)
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => handleSetAllPairSubDivisions(sIdx, 'two_subquestions')}
-                              style={{ fontSize: '0.74rem', padding: '3px 8px' }}
-                            >
-                              ⚡ All 2 Sub-questions
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => handleSetAllPairSubDivisions(sIdx, 'none')}
-                              style={{ fontSize: '0.74rem', padding: '3px 8px' }}
-                            >
-                              ⚡ All Single Questions
-                            </button>
-                          </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '1.1rem' }}>📋</span>
+                          <span style={{ fontWeight: 700, fontSize: '0.92rem', color: '#93c5fd' }}>
+                            Question Allocation & Marks Pattern (Q{qRange.startQ} to Q{qRange.endQ})
+                          </span>
+                          <span style={{
+                            fontSize: '0.74rem',
+                            background: 'rgba(56, 189, 248, 0.15)',
+                            color: '#38bdf8',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontWeight: 600,
+                            border: '1px solid rgba(56, 189, 248, 0.3)'
+                          }}>
+                            {sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice'
+                              ? `${numQuestions} Pairs (${numQuestions * 2} Questions)`
+                              : `${numQuestions} Questions`}
+                          </span>
                         </div>
 
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: numQuestions > 2 ? 'repeat(auto-fit, minmax(280px, 1fr))' : '1fr 1fr',
-                          gap: '10px'
-                        }}>
-                          {Array.from({ length: numQuestions }).map((_, qIdx) => {
-                            const isInternalChoice = sec.choice_mode === 'internal_choice';
-                            const q1 = isInternalChoice ? qRange.startQ + qIdx * 2 : qRange.startQ + qIdx;
-                            const q2 = isInternalChoice ? q1 + 1 : null;
-                            const itemVal = (sec.question_sub_divisions && sec.question_sub_divisions[qIdx]) || sec.sub_division || 'two_subquestions';
-                            const p1 = Math.ceil(marksPerQ / 2);
-                            const p2 = marksPerQ - p1;
-
-                            return (
-                              <div
-                                key={qIdx}
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {sec.type === 'Long Answer' && (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => handleSetAllSubQuestionsPattern(sIdx, 8, 6)}
                                 style={{
-                                  padding: '10px 12px',
-                                  borderRadius: '6px',
-                                  background: 'rgba(15, 23, 42, 0.6)',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)'
+                                  fontSize: '0.74rem',
+                                  padding: '4px 9px',
+                                  background: 'rgba(16, 185, 129, 0.2)',
+                                  borderColor: 'rgba(16, 185, 129, 0.5)',
+                                  color: '#6ee7b7',
+                                  fontWeight: 700
                                 }}
+                                title="Configure all questions with 8M (a) + 6M (b) pattern (Standard 14M breakdown)"
                               >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                  <span style={{ fontWeight: 700, fontSize: '0.84rem', color: '#e2e8f0' }}>
+                                ⚡ Set 8 + 6 Pattern (All)
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => handleSetAllSubQuestionsPattern(sIdx, 7, 7)}
+                                style={{
+                                  fontSize: '0.74rem',
+                                  padding: '4px 9px',
+                                  background: 'rgba(59, 130, 246, 0.18)',
+                                  borderColor: 'rgba(59, 130, 246, 0.4)',
+                                  color: '#93c5fd',
+                                  fontWeight: 600
+                                }}
+                                title="Configure all questions with 7M (a) + 7M (b) pattern"
+                              >
+                                ⚡ Set 7 + 7 Pattern
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => handleSetAllSingleQuestions(sIdx)}
+                                style={{ fontSize: '0.74rem', padding: '4px 8px' }}
+                                title="Configure all questions as single questions without sub-division"
+                              >
+                                ⚡ All Single Qs
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleAutoDistributeSectionCOs(sIdx)}
+                            style={{
+                              fontSize: '0.74rem',
+                              padding: '4px 9px',
+                              background: 'rgba(14, 165, 233, 0.2)',
+                              borderColor: 'rgba(14, 165, 233, 0.45)',
+                              color: '#38bdf8',
+                              fontWeight: 600
+                            }}
+                            title="Evenly distribute available Course Outcomes across sub-questions a & b"
+                          >
+                            ⚡ Auto-Distribute COs
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleResetSectionCOs(sIdx)}
+                            style={{ fontSize: '0.74rem', padding: '4px 8px' }}
+                            title="Reset all question target COs to Auto"
+                          >
+                            🔄 Reset COs
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleAutoDistributeSectionBlooms(sIdx)}
+                            style={{
+                              fontSize: '0.74rem',
+                              padding: '4px 9px',
+                              background: 'rgba(192, 132, 252, 0.2)',
+                              borderColor: 'rgba(192, 132, 252, 0.45)',
+                              color: '#c084fc',
+                              fontWeight: 600
+                            }}
+                            title="Evenly distribute Bloom taxonomy levels across questions"
+                          >
+                            ⚡ Auto-Distribute Blooms
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleResetSectionBlooms(sIdx)}
+                            style={{ fontSize: '0.74rem', padding: '4px 8px' }}
+                            title="Reset all question target Bloom levels to Auto"
+                          >
+                            🔄 Reset Blooms
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Grid of Questions */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: numQuestions > 2 ? 'repeat(auto-fit, minmax(360px, 1fr))' : '1fr',
+                        gap: '12px'
+                      }}>
+                        {Array.from({ length: numQuestions }).map((_, qIdx) => {
+                          const isInternalChoice = sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice';
+                          const q1 = isInternalChoice ? qRange.startQ + qIdx * 2 : qRange.startQ + qIdx;
+                          const q2 = isInternalChoice ? q1 + 1 : null;
+                          const subDiv = getQuestionSubDivision(sec, qIdx);
+                          const qMarks = getQuestionMarks(sec, qIdx);
+                          const qCos = getQuestionCOs(sec, qIdx);
+                          const qBlooms = getQuestionBlooms(sec, qIdx);
+
+                          // Calculate question slot total marks
+                          const totalSlotMarks = subDiv === 'two_subquestions'
+                            ? (parseInt(qMarks.q1_a) || 0) + (parseInt(qMarks.q1_b) || 0)
+                            : (parseInt(qMarks.q1) || marksPerQ);
+
+                          return (
+                            <div
+                              key={qIdx}
+                              style={{
+                                background: 'rgba(30, 41, 59, 0.65)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '8px',
+                                padding: '12px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '10px'
+                              }}
+                            >
+                              {/* Top Header of Question Card */}
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                                paddingBottom: '8px',
+                                flexWrap: 'wrap',
+                                gap: '8px'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#f1f5f9' }}>
                                     {isInternalChoice ? (
-                                      <>Choice Pair {qIdx + 1}: <strong style={{ color: '#38bdf8' }}>Q{q1} OR Q{q2}</strong></>
+                                      <>Pair {qIdx + 1}: <span style={{ color: '#38bdf8' }}>Q{q1} OR Q{q2}</span></>
                                     ) : (
-                                      <>Question {qIdx + 1}: <strong style={{ color: '#38bdf8' }}>Q{q1}</strong></>
+                                      <>Question {qIdx + 1}: <span style={{ color: '#38bdf8' }}>Q{q1}</span></>
                                     )}
                                   </span>
-                                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                                    [{marksPerQ}M]
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  {sec.type === 'Long Answer' && (
+                                    <select
+                                      className="form-control"
+                                      value={subDiv}
+                                      onChange={(e) => handleUpdateQuestionSubDivision(sIdx, qIdx, e.target.value)}
+                                      style={{
+                                        fontSize: '0.76rem',
+                                        padding: '3px 8px',
+                                        height: '28px',
+                                        background: 'rgba(15, 23, 42, 0.9)',
+                                        color: subDiv === 'two_subquestions' ? '#60a5fa' : '#cbd5e1',
+                                        borderColor: subDiv === 'two_subquestions' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.15)',
+                                        fontWeight: 600
+                                      }}
+                                    >
+                                      <option value="two_subquestions">🧩 2 Sub-questions (a & b)</option>
+                                      <option value="none">📄 Single Question</option>
+                                    </select>
+                                  )}
+
+                                  <span style={{
+                                    fontSize: '0.76rem',
+                                    fontWeight: 800,
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    color: '#34d399',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)'
+                                  }}>
+                                    {totalSlotMarks} Marks
                                   </span>
                                 </div>
-                                <select
-                                  className="form-control"
-                                  value={itemVal}
-                                  onChange={(e) => handleUpdatePairSubDivision(sIdx, qIdx, e.target.value)}
-                                  style={{
-                                    fontSize: '0.8rem',
-                                    padding: '5px 8px',
-                                    background: 'rgba(30, 41, 59, 0.8)',
-                                    color: '#f8fafc',
-                                    borderColor: itemVal === 'two_subquestions' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.15)'
-                                  }}
-                                >
-                                  {isInternalChoice ? (
+                              </div>
+
+                              {/* Body: Sub-questions with individual Marks, CO & Bloom level */}
+                              {subDiv === 'two_subquestions' ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  {/* Question 1 (e.g. Q11 or Direct Q) */}
+                                  <div style={{
+                                    background: 'rgba(15, 23, 42, 0.5)',
+                                    padding: '8px 10px',
+                                    borderRadius: '6px',
+                                    border: '1px solid rgba(59, 130, 246, 0.2)'
+                                  }}>
+                                    {isInternalChoice && (
+                                      <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#93c5fd', marginBottom: '6px' }}>
+                                        Question {q1} (First Alternative):
+                                      </div>
+                                    )}
+
+                                    {/* Sub-question a */}
+                                    <div style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '52px 76px 1fr 1fr',
+                                      gap: '6px',
+                                      alignItems: 'center',
+                                      marginBottom: '6px'
+                                    }}>
+                                      <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#f8fafc' }}>
+                                        {isInternalChoice ? `${q1}.a` : `Q${q1}.a`}
+                                      </span>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <input
+                                          type="number"
+                                          className="form-control"
+                                          min={1}
+                                          max={Math.max(1, (parseInt(sec.marks_per_q) || 14) - 1)}
+                                          value={qMarks.q1_a}
+                                          onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q1_a', e.target.value)}
+                                          title={`Sub-question a marks (Restricted: sum must equal ${parseInt(sec.marks_per_q) || 14}M)`}
+                                          style={{
+                                            fontSize: '0.78rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: '#e2e8f0',
+                                            textAlign: 'center',
+                                            fontWeight: 700
+                                          }}
+                                        />
+                                        <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
+                                        <select
+                                          className="form-control"
+                                          value={qCos.q1_a}
+                                          onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q1_a', e.target.value)}
+                                          style={{
+                                            fontSize: '0.74rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: qCos.q1_a !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                            borderColor: qCos.q1_a !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                            fontWeight: 600
+                                          }}
+                                        >
+                                          <option value="auto">Auto</option>
+                                          {outcomes.map(oc => (
+                                            <option key={oc.id} value={oc.id}>{oc.id}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
+                                        <select
+                                          className="form-control"
+                                          value={qBlooms.q1_a}
+                                          onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q1_a', e.target.value)}
+                                          style={{
+                                            fontSize: '0.74rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: qBlooms.q1_a !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                            borderColor: qBlooms.q1_a !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                            fontWeight: 600
+                                          }}
+                                        >
+                                          <option value="auto">Auto</option>
+                                          {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                            <option key={bl} value={bl}>{bl}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
+
+                                    {/* Sub-question b */}
+                                    <div style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '52px 76px 1fr 1fr',
+                                      gap: '6px',
+                                      alignItems: 'center'
+                                    }}>
+                                      <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#f8fafc' }}>
+                                        {isInternalChoice ? `${q1}.b` : `Q${q1}.b`}
+                                      </span>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <input
+                                          type="number"
+                                          className="form-control"
+                                          min={1}
+                                          max={Math.max(1, (parseInt(sec.marks_per_q) || 14) - 1)}
+                                          value={qMarks.q1_b}
+                                          onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q1_b', e.target.value)}
+                                          title={`Sub-question b marks (Restricted: sum must equal ${parseInt(sec.marks_per_q) || 14}M)`}
+                                          style={{
+                                            fontSize: '0.78rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: '#e2e8f0',
+                                            textAlign: 'center',
+                                            fontWeight: 700
+                                          }}
+                                        />
+                                        <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
+                                        <select
+                                          className="form-control"
+                                          value={qCos.q1_b}
+                                          onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q1_b', e.target.value)}
+                                          style={{
+                                            fontSize: '0.74rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: qCos.q1_b !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                            borderColor: qCos.q1_b !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                            fontWeight: 600
+                                          }}
+                                        >
+                                          <option value="auto">Auto</option>
+                                          {outcomes.map(oc => (
+                                            <option key={oc.id} value={oc.id}>{oc.id}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                        <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
+                                        <select
+                                          className="form-control"
+                                          value={qBlooms.q1_b}
+                                          onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q1_b', e.target.value)}
+                                          style={{
+                                            fontSize: '0.74rem',
+                                            padding: '3px 4px',
+                                            height: '28px',
+                                            background: 'rgba(30, 41, 59, 0.9)',
+                                            color: qBlooms.q1_b !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                            borderColor: qBlooms.q1_b !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                            fontWeight: 600
+                                          }}
+                                        >
+                                          <option value="auto">Auto</option>
+                                          {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                            <option key={bl} value={bl}>{bl}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Question 2 if internal choice (e.g. Q12 OR) */}
+                                  {isInternalChoice && (
                                     <>
-                                      <option value="two_subquestions">
-                                        2 Sub-questions ({q1}.a, {q1}.b OR {q2}.a, {q2}.b) [{p1}M + {p2}M]
-                                      </option>
-                                      <option value="none">
-                                        Single Question ({q1} OR {q2}) [{marksPerQ}M]
-                                      </option>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <option value="two_subquestions">
-                                        2 Sub-questions ({q1}.a & {q1}.b) [{p1}M + {p2}M]
-                                      </option>
-                                      <option value="none">
-                                        Single Question (Q{q1}) [{marksPerQ}M]
-                                      </option>
+                                      <div style={{
+                                        textAlign: 'center',
+                                        fontSize: '0.74rem',
+                                        fontWeight: 800,
+                                        color: '#94a3b8',
+                                        letterSpacing: '1px',
+                                        margin: '2px 0'
+                                      }}>
+                                        ─── [ OR ] ───
+                                      </div>
+
+                                      <div style={{
+                                        background: 'rgba(15, 23, 42, 0.5)',
+                                        padding: '8px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                                      }}>
+                                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#93c5fd', marginBottom: '6px' }}>
+                                          Question {q2} (Second Alternative):
+                                        </div>
+
+                                        {/* Sub-question a */}
+                                        <div style={{
+                                          display: 'grid',
+                                          gridTemplateColumns: '52px 76px 1fr 1fr',
+                                          gap: '6px',
+                                          alignItems: 'center',
+                                          marginBottom: '6px'
+                                        }}>
+                                          <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#f8fafc' }}>
+                                            {q2}.a
+                                          </span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <input
+                                              type="number"
+                                              className="form-control"
+                                              min={1}
+                                              max={Math.max(1, (parseInt(sec.marks_per_q) || 14) - 1)}
+                                              value={qMarks.q2_a}
+                                              onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q2_a', e.target.value)}
+                                              title={`Sub-question a marks (Restricted: sum must equal ${parseInt(sec.marks_per_q) || 14}M)`}
+                                              style={{
+                                                fontSize: '0.78rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: '#e2e8f0',
+                                                textAlign: 'center',
+                                                fontWeight: 700
+                                              }}
+                                            />
+                                            <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
+                                            <select
+                                              className="form-control"
+                                              value={qCos.q2_a}
+                                              onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q2_a', e.target.value)}
+                                              style={{
+                                                fontSize: '0.74rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: qCos.q2_a !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                                borderColor: qCos.q2_a !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                                fontWeight: 600
+                                              }}
+                                            >
+                                              <option value="auto">Auto</option>
+                                              {outcomes.map(oc => (
+                                                <option key={oc.id} value={oc.id}>{oc.id}</option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
+                                            <select
+                                              className="form-control"
+                                              value={qBlooms.q2_a}
+                                              onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q2_a', e.target.value)}
+                                              style={{
+                                                fontSize: '0.74rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: qBlooms.q2_a !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                                borderColor: qBlooms.q2_a !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                                fontWeight: 600
+                                              }}
+                                            >
+                                              <option value="auto">Auto</option>
+                                              {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                                <option key={bl} value={bl}>{bl}</option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                        </div>
+
+                                        {/* Sub-question b */}
+                                        <div style={{
+                                          display: 'grid',
+                                          gridTemplateColumns: '52px 76px 1fr 1fr',
+                                          gap: '6px',
+                                          alignItems: 'center'
+                                        }}>
+                                          <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#f8fafc' }}>
+                                            {q2}.b
+                                          </span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <input
+                                              type="number"
+                                              className="form-control"
+                                              min={1}
+                                              max={Math.max(1, (parseInt(sec.marks_per_q) || 14) - 1)}
+                                              value={qMarks.q2_b}
+                                              onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q2_b', e.target.value)}
+                                              title={`Sub-question b marks (Restricted: sum must equal ${parseInt(sec.marks_per_q) || 14}M)`}
+                                              style={{
+                                                fontSize: '0.78rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: '#e2e8f0',
+                                                textAlign: 'center',
+                                                fontWeight: 700
+                                              }}
+                                            />
+                                            <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
+                                            <select
+                                              className="form-control"
+                                              value={qCos.q2_b}
+                                              onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q2_b', e.target.value)}
+                                              style={{
+                                                fontSize: '0.74rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: qCos.q2_b !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                                borderColor: qCos.q2_b !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                                fontWeight: 600
+                                              }}
+                                            >
+                                              <option value="auto">Auto</option>
+                                              {outcomes.map(oc => (
+                                                <option key={oc.id} value={oc.id}>{oc.id}</option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
+                                            <select
+                                              className="form-control"
+                                              value={qBlooms.q2_b}
+                                              onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q2_b', e.target.value)}
+                                              style={{
+                                                fontSize: '0.74rem',
+                                                padding: '3px 4px',
+                                                height: '28px',
+                                                background: 'rgba(30, 41, 59, 0.9)',
+                                                color: qBlooms.q2_b !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                                borderColor: qBlooms.q2_b !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                                fontWeight: 600
+                                              }}
+                                            >
+                                              <option value="auto">Auto</option>
+                                              {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                                <option key={bl} value={bl}>{bl}</option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </>
                                   )}
-                                </select>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Question-wise Target Course Outcome (CO) Mapping */}
-                    {!isNone && (
-                      <div style={{
-                        gridColumn: '1 / -1',
-                        marginTop: '12px',
-                        padding: '14px 16px',
-                        borderRadius: '8px',
-                        background: 'rgba(14, 165, 233, 0.08)',
-                        border: '1px solid rgba(14, 165, 233, 0.22)'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '1.05rem' }}>🎯</span>
-                            <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#38bdf8' }}>
-                              Target Course Outcome (CO) Mapping per Question
-                            </span>
-                            <span style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                              (Select which CO each question in this section should target)
-                            </span>
-                          </div>
-
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => handleAutoDistributeSectionCOs(sIdx)}
-                              style={{ fontSize: '0.74rem', padding: '3px 8px', color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}
-                              title="Distribute questions evenly across available COs"
-                            >
-                              ⚡ Auto-Distribute COs
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-sm"
-                              onClick={() => handleResetSectionCOs(sIdx)}
-                              style={{ fontSize: '0.74rem', padding: '3px 8px' }}
-                              title="Reset all questions in this section to Auto balance"
-                            >
-                              🔄 Reset to Auto
-                            </button>
-                          </div>
-                        </div>
-
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: numQuestions > 2 ? 'repeat(auto-fit, minmax(280px, 1fr))' : '1fr 1fr',
-                          gap: '10px'
-                        }}>
-                          {Array.from({ length: numQuestions }).map((_, qIdx) => {
-                            const isInternalChoice = sec.type === 'Long Answer' && sec.choice_mode === 'internal_choice';
-                            const q1 = isInternalChoice ? qRange.startQ + qIdx * 2 : qRange.startQ + qIdx;
-                            const q2 = isInternalChoice ? q1 + 1 : null;
-
-                            if (isInternalChoice) {
-                              const rawVal = (sec.question_cos && sec.question_cos[qIdx]) || {};
-                              const q1CO = (typeof rawVal === 'object' && rawVal !== null ? rawVal.q1 : rawVal) || 'auto';
-                              const q2CO = (typeof rawVal === 'object' && rawVal !== null ? rawVal.q2 : rawVal) || 'auto';
-
-                              return (
-                                <div
-                                  key={qIdx}
-                                  style={{
-                                    background: 'rgba(15, 23, 42, 0.75)',
-                                    border: '1px solid rgba(56, 189, 248, 0.25)',
-                                    borderRadius: '8px',
-                                    padding: '10px 12px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '8px'
-                                  }}
-                                >
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontWeight: 700, borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '4px' }}>
-                                    <span style={{ color: '#93c5fd' }}>Choice Pair {qIdx + 1}: <strong style={{ color: '#38bdf8' }}>Q{q1} OR Q{q2}</strong></span>
-                                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>[{marksPerQ}M]</span>
-                                  </div>
-
-                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                    {/* Question 1 in pair */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.76rem', fontWeight: 600 }}>
-                                        <span style={{ color: '#f1f5f9' }}>Q{q1}</span>
-                                        <span style={{ fontSize: '0.7rem', color: q1CO !== 'auto' ? '#38bdf8' : 'var(--text-muted)' }}>
-                                          {q1CO !== 'auto' ? q1CO : 'Auto'}
-                                        </span>
-                                      </div>
+                                </div>
+                              ) : (
+                                /* Single Question Mode */
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '52px 76px 1fr 1fr',
+                                    gap: '6px',
+                                    alignItems: 'center'
+                                  }}>
+                                    <span style={{ fontWeight: 700, fontSize: '0.84rem', color: '#f8fafc' }}>
+                                      Q{q1}
+                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      <input
+                                        type="number"
+                                        className="form-control"
+                                        min={1}
+                                        max={50}
+                                        value={qMarks.q1}
+                                        onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q1', e.target.value)}
+                                        style={{
+                                          fontSize: '0.78rem',
+                                          padding: '3px 4px',
+                                          height: '28px',
+                                          background: 'rgba(30, 41, 59, 0.9)',
+                                          color: '#e2e8f0',
+                                          textAlign: 'center',
+                                          fontWeight: 700
+                                        }}
+                                      />
+                                      <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
                                       <select
                                         className="form-control"
-                                        value={q1CO}
+                                        value={qCos.q1}
                                         onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q1', e.target.value)}
                                         style={{
-                                          fontSize: '0.76rem',
-                                          padding: '4px 6px',
+                                          fontSize: '0.74rem',
+                                          padding: '3px 4px',
+                                          height: '28px',
                                           background: 'rgba(30, 41, 59, 0.9)',
-                                          color: q1CO !== 'auto' ? '#38bdf8' : '#e2e8f0',
-                                          borderColor: q1CO !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)'
+                                          color: qCos.q1 !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                          borderColor: qCos.q1 !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                          fontWeight: 600
                                         }}
                                       >
-                                        <option value="auto">Auto (Balanced)</option>
+                                        <option value="auto">Auto</option>
                                         {outcomes.map(oc => (
-                                          <option key={oc.id} value={oc.id}>
-                                            {oc.id} ({oc.unit || oc.bloom_level})
-                                          </option>
+                                          <option key={oc.id} value={oc.id}>{oc.id}</option>
                                         ))}
                                       </select>
                                     </div>
-
-                                    {/* Question 2 in pair */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.76rem', fontWeight: 600 }}>
-                                        <span style={{ color: '#f1f5f9' }}>Q{q2} (OR)</span>
-                                        <span style={{ fontSize: '0.7rem', color: q2CO !== 'auto' ? '#38bdf8' : 'var(--text-muted)' }}>
-                                          {q2CO !== 'auto' ? q2CO : 'Auto'}
-                                        </span>
-                                      </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
                                       <select
                                         className="form-control"
-                                        value={q2CO}
-                                        onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q2', e.target.value)}
+                                        value={qBlooms.q1}
+                                        onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q1', e.target.value)}
                                         style={{
-                                          fontSize: '0.76rem',
-                                          padding: '4px 6px',
+                                          fontSize: '0.74rem',
+                                          padding: '3px 4px',
+                                          height: '28px',
                                           background: 'rgba(30, 41, 59, 0.9)',
-                                          color: q2CO !== 'auto' ? '#38bdf8' : '#e2e8f0',
-                                          borderColor: q2CO !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)'
+                                          color: qBlooms.q1 !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                          borderColor: qBlooms.q1 !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                          fontWeight: 600
                                         }}
                                       >
-                                        <option value="auto">Auto (Balanced)</option>
-                                        {outcomes.map(oc => (
-                                          <option key={oc.id} value={oc.id}>
-                                            {oc.id} ({oc.unit || oc.bloom_level})
-                                          </option>
+                                        <option value="auto">Auto</option>
+                                        {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                          <option key={bl} value={bl}>{bl}</option>
                                         ))}
                                       </select>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            }
 
-                            // Direct Question (No choice)
-                            const currentCO = typeof sec.question_cos?.[qIdx] === 'object' && sec.question_cos[qIdx] !== null
-                              ? sec.question_cos[qIdx].q1 || 'auto'
-                              : (sec.question_cos && sec.question_cos[qIdx]) || 'auto';
+                                  {isInternalChoice && (
+                                    <>
+                                      <div style={{
+                                        textAlign: 'center',
+                                        fontSize: '0.74rem',
+                                        fontWeight: 800,
+                                        color: '#94a3b8',
+                                        letterSpacing: '1px',
+                                        margin: '2px 0'
+                                      }}>
+                                        ─── [ OR ] ───
+                                      </div>
 
-                            return (
-                              <div
-                                key={qIdx}
-                                style={{
-                                  background: 'rgba(15, 23, 42, 0.65)',
-                                  border: currentCO !== 'auto' ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-                                  borderRadius: '6px',
-                                  padding: '8px 10px',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: '4px'
-                                }}
-                              >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', fontWeight: 700 }}>
-                                  <span style={{ color: '#f1f5f9' }}>Question {q1}</span>
-                                  <span style={{ fontSize: '0.72rem', color: currentCO !== 'auto' ? '#38bdf8' : 'var(--text-muted)' }}>
-                                    {currentCO !== 'auto' ? currentCO : 'Auto'}
-                                  </span>
+                                      <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '52px 76px 1fr 1fr',
+                                        gap: '6px',
+                                        alignItems: 'center'
+                                      }}>
+                                        <span style={{ fontWeight: 700, fontSize: '0.84rem', color: '#f8fafc' }}>
+                                          Q{q2}
+                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                          <input
+                                            type="number"
+                                            className="form-control"
+                                            min={1}
+                                            max={50}
+                                            value={qMarks.q2}
+                                            onChange={(e) => handleUpdateQuestionMark(sIdx, qIdx, 'q2', e.target.value)}
+                                            style={{
+                                              fontSize: '0.78rem',
+                                              padding: '3px 4px',
+                                              height: '28px',
+                                              background: 'rgba(30, 41, 59, 0.9)',
+                                              color: '#e2e8f0',
+                                              textAlign: 'center',
+                                              fontWeight: 700
+                                            }}
+                                          />
+                                          <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>M</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                          <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>CO:</span>
+                                          <select
+                                            className="form-control"
+                                            value={qCos.q2}
+                                            onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, 'q2', e.target.value)}
+                                            style={{
+                                              fontSize: '0.74rem',
+                                              padding: '3px 4px',
+                                              height: '28px',
+                                              background: 'rgba(30, 41, 59, 0.9)',
+                                              color: qCos.q2 !== 'auto' ? '#38bdf8' : '#e2e8f0',
+                                              borderColor: qCos.q2 !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)',
+                                              fontWeight: 600
+                                            }}
+                                          >
+                                            <option value="auto">Auto</option>
+                                            {outcomes.map(oc => (
+                                              <option key={oc.id} value={oc.id}>{oc.id}</option>
+                                            ))}
+                                          </select>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                          <span style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 600 }}>BL:</span>
+                                          <select
+                                            className="form-control"
+                                            value={qBlooms.q2}
+                                            onChange={(e) => handleUpdateQuestionBloom(sIdx, qIdx, 'q2', e.target.value)}
+                                            style={{
+                                              fontSize: '0.74rem',
+                                              padding: '3px 4px',
+                                              height: '28px',
+                                              background: 'rgba(30, 41, 59, 0.9)',
+                                              color: qBlooms.q2 !== 'auto' ? '#c084fc' : '#e2e8f0',
+                                              borderColor: qBlooms.q2 !== 'auto' ? '#9333ea' : 'rgba(255, 255, 255, 0.15)',
+                                              fontWeight: 600
+                                            }}
+                                          >
+                                            <option value="auto">Auto</option>
+                                            {(blooms && blooms.length > 0 ? blooms : BLOOM_LEVELS).map(bl => (
+                                              <option key={bl} value={bl}>{bl}</option>
+                                            ))}
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
-                                <select
-                                  className="form-control"
-                                  value={currentCO}
-                                  onChange={(e) => handleUpdateQuestionCO(sIdx, qIdx, e.target.value)}
-                                  style={{
-                                    fontSize: '0.78rem',
-                                    padding: '4px 6px',
-                                    background: 'rgba(30, 41, 59, 0.8)',
-                                    color: currentCO !== 'auto' ? '#38bdf8' : '#e2e8f0',
-                                    borderColor: currentCO !== 'auto' ? '#0284c7' : 'rgba(255, 255, 255, 0.15)'
-                                  }}
-                                >
-                                  <option value="auto">Auto (Balanced)</option>
-                                  {outcomes.map(oc => (
-                                    <option key={oc.id} value={oc.id}>
-                                      {oc.id} ({oc.unit || oc.bloom_level})
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            );
-                          })}
-                        </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -2047,33 +3179,35 @@ const QPGenerator = () => {
                 </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
                   onClick={handleExtractCOsFromDocuments}
                   disabled={extractingCOs}
                   style={{ fontSize: '0.82rem', padding: '6px 14px', background: 'linear-gradient(135deg, #3b82f6, #06b6d4)' }}
-                  title="Scan uploaded documents / syllabus text to extract explicit COs"
+                  title="Extracts explicit Course Outcomes directly from the uploaded document, or synthesizes from syllabus units if not explicitly present"
                 >
-                  {extractingCOs ? '⚡ Extracting...' : '🪄 Auto-Extract from Documents'}
+                  {extractingCOs ? '⚡ Processing Syllabus...' : '🪄 Auto-Extract from Document'}
                 </button>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={handleAutoGenerateCOsFromCourse}
+                  disabled={extractingCOs}
                   style={{ fontSize: '0.82rem', padding: '6px 12px' }}
-                  title="Generate standard OBE Course Outcomes tailored to this course"
+                  title="Intelligently synthesizes 6 OBE Course Outcomes grounded directly in the syllabus units and topics"
                 >
-                  🪄 Auto-Generate from Course
+                  ✨ Auto-Generate from Course Topics
                 </button>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={handleResetOutcomes}
                   style={{ fontSize: '0.82rem', padding: '6px 12px' }}
+                  title="Reset to default standard OBE Outcome template"
                 >
-                  ⚡ Preload Standard COs
+                  🔄 Reset Template
                 </button>
               </div>
             </div>
@@ -2096,7 +3230,7 @@ const QPGenerator = () => {
                 <div>
                   <strong>No Course Outcomes (COs) detected in the uploaded documents.</strong>
                   <div style={{ fontSize: '0.82rem', color: '#fef3c7', marginTop: '2px' }}>
-                    You can add your Course Outcomes manually using the form below, or click <strong>"🪄 Auto-Generate from Course"</strong> to populate tailored COs automatically.
+                    You can add your Course Outcomes manually using the form below, or click <strong>"✨ Auto-Generate from Course Topics"</strong> to generate syllabus-grounded COs automatically.
                   </div>
                 </div>
               </div>
@@ -2113,10 +3247,27 @@ const QPGenerator = () => {
                 marginBottom: '20px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
                 gap: '10px'
               }}>
-                <span>✓</span>
-                <span>Course Outcomes successfully configured and mapped to syllabus units!</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>✓</span>
+                  <span>Course Outcomes configured and mapped to syllabus units!</span>
+                </div>
+                {coSourceInfo && (
+                  <span style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    background: 'rgba(16, 185, 129, 0.25)',
+                    padding: '3px 9px',
+                    borderRadius: '4px',
+                    color: '#6ee7b7',
+                    border: '1px solid rgba(16, 185, 129, 0.4)'
+                  }}>
+                    Source: {coSourceInfo}
+                  </span>
+                )}
               </div>
             )}
 
@@ -2172,8 +3323,8 @@ const QPGenerator = () => {
                     value={newCoUnit}
                     onChange={(e) => setNewCoUnit(e.target.value)}
                   >
-                    {['Unit 1', 'Unit 2', 'Unit 3', 'Unit 4', 'Unit 5'].map(u => (
-                      <option key={u} value={u}>{u}</option>
+                    {availableUnits.map(u => (
+                      <option key={u.unit_key} value={u.unit_key}>{u.label}</option>
                     ))}
                   </select>
                 </div>
@@ -2247,12 +3398,12 @@ const QPGenerator = () => {
                   <div>
                     <select
                       className="form-control"
-                      value={coItem.unit || `Unit ${min(5, index + 1)}`}
+                      value={coItem.unit || (availableUnits[0] ? availableUnits[0].unit_key : 'Unit 1')}
                       onChange={(e) => handleUpdateOutcomeText(index, 'unit', e.target.value)}
                       style={{ fontSize: '0.82rem', padding: '4px 8px' }}
                     >
-                      {['Unit 1', 'Unit 2', 'Unit 3', 'Unit 4', 'Unit 5'].map(u => (
-                        <option key={u} value={u}>{u}</option>
+                      {availableUnits.map(u => (
+                        <option key={u.unit_key} value={u.unit_key}>{u.unit_label ? `${u.unit_label} (${u.unit_key})` : u.unit_key}</option>
                       ))}
                     </select>
                   </div>
@@ -2286,108 +3437,315 @@ const QPGenerator = () => {
               gap: '12px'
             }}>
               <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#f8fafc' }}>
-                  📖 Chapter & Topic Weightage Allocation
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📖</span> <span>Syllabus Units & Topics Allocation</span>
                 </h3>
                 <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
-                  Distribute relative conceptual weightage across units. Questions will be synthesized according to these proportions.
+                  Units, titles, and syllabus topics extracted directly from uploaded curriculum documents. Question items are grounded strictly in these concepts.
                 </p>
               </div>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={handlePreloadDefaultTopics}
-              >
-                ⚡ Preload Course Topics
-              </button>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleExtractUnitsFromDocuments}
+                  disabled={extractingUnits}
+                  style={{
+                    fontSize: '0.82rem',
+                    padding: '7px 15px',
+                    background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+                    boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)',
+                    fontWeight: 700
+                  }}
+                  title="Extract units (Unit-I, Unit-II...), titles, hours, and technical topics directly from syllabus document headings"
+                >
+                  {extractingUnits ? '⏳ Extracting Units...' : '⚡ Auto-Detect Units from Document'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handlePreloadDefaultTopics}
+                  style={{ fontSize: '0.82rem', padding: '7px 13px' }}
+                  title="Preload standardized 4-unit curriculum"
+                >
+                  ↺ Preload Standard Units
+                </button>
+              </div>
             </div>
 
-            {/* Total Weight Progress Bar */}
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.88rem' }}>
-                <span>Total Topic Weight:</span>
-                <strong style={{ color: totalTopicWeight === 100 ? '#10b981' : '#f59e0b' }}>
-                  {totalTopicWeight}% {totalTopicWeight === 100 ? '(Balanced)' : '(Recommended: 100%)'}
-                </strong>
+            {/* Total Weight Progress Bar & Unit Stats */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '8px',
+              padding: '14px 18px',
+              marginBottom: '22px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <span style={{ fontSize: '0.9rem', color: '#f1f5f9', fontWeight: 600 }}>Total Curriculum Weight:</span>
+                  <strong style={{ fontSize: '0.95rem', color: totalTopicWeight === 100 ? '#10b981' : '#f59e0b' }}>
+                    {totalTopicWeight}% {totalTopicWeight === 100 ? '✓ Balanced (100%)' : `⚠️ Adjust to 100% (currently ${totalTopicWeight}%)`}
+                  </strong>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', fontSize: '0.8rem' }}>
+                  <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)', fontWeight: 600 }}>
+                    🏛️ {topics.length} Units Configured
+                  </span>
+                  <span style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)', fontWeight: 600 }}>
+                    🏷️ {topics.reduce((acc, u) => acc + (u.topics?.length || 0), 0)} Topics Grounded
+                  </span>
+                </div>
               </div>
               <div style={{ height: '8px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${Math.min(100, totalTopicWeight)}%`, height: '100%', background: totalTopicWeight === 100 ? '#10b981' : '#f59e0b', transition: 'all 0.3s ease' }} />
               </div>
             </div>
 
-            {/* Add New Topic Form */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px auto', gap: '12px', marginBottom: '20px', alignItems: 'end' }}>
+            {/* Units Cards Grid / List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginBottom: '24px' }}>
+              {topics.map((u, idx) => (
+                <div
+                  key={u.id || idx}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '10px',
+                    padding: '18px 20px',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {/* Unit Top Bar */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '14px',
+                    paddingBottom: '12px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '280px' }}>
+                      <span style={{
+                        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(59, 130, 246, 0.25))',
+                        color: '#38bdf8',
+                        border: '1px solid rgba(56, 189, 248, 0.45)',
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        fontWeight: 800,
+                        fontSize: '0.88rem',
+                        letterSpacing: '0.5px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {u.unit_label || u.unit_key || `Unit ${idx + 1}`}
+                      </span>
+
+                      {u.hours && (
+                        <span style={{
+                          background: 'rgba(255, 255, 255, 0.06)',
+                          color: '#94a3b8',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          padding: '3px 9px',
+                          borderRadius: '6px',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap'
+                        }}>
+                          ⏱️ {u.hours}
+                        </span>
+                      )}
+
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={u.unit_title || u.name || ''}
+                        onChange={(e) => handleUpdateUnitTitle(idx, e.target.value)}
+                        placeholder="Unit Title (e.g. Overview of Web databases)"
+                        style={{
+                          fontWeight: 700,
+                          fontSize: '0.96rem',
+                          color: '#f8fafc',
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          borderColor: 'rgba(255, 255, 255, 0.12)',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          flex: 1
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Weight:</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          className="form-control"
+                          value={u.weight || 25}
+                          onChange={(e) => handleUpdateTopicWeight(idx, e.target.value)}
+                          style={{ width: '65px', fontSize: '0.88rem', padding: '4px 6px', textAlign: 'center', fontWeight: 700 }}
+                        />
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>%</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="blueprint-icon-btn"
+                        onClick={() => handleDeleteTopic(idx)}
+                        title="Delete this unit"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Unit Topics Cloud */}
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#60a5fa', marginBottom: '8px' }}>
+                      Extracted Technical Topics ({(u.topics || []).length}):
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                      {(u.topics && u.topics.length > 0) ? (
+                        u.topics.map((c, cIdx) => (
+                          <div
+                            key={cIdx}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              background: 'rgba(30, 41, 59, 0.85)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              padding: '5px 12px',
+                              borderRadius: '16px',
+                              fontSize: '0.82rem',
+                              color: '#cbd5e1',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <span>{c}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteConceptFromUnit(idx, cIdx)}
+                              title="Remove topic"
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#94a3b8',
+                                cursor: 'pointer',
+                                padding: '0 2px',
+                                fontSize: '0.9rem',
+                                lineHeight: 1
+                              }}
+                              onMouseEnter={(e) => e.target.style.color = '#ef4444'}
+                              onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                          No specific topics parsed for this unit yet. Add topics below or click Auto-Detect.
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Add Topic Inline Form */}
+                    <div style={{ display: 'flex', gap: '8px', maxWidth: '440px' }}>
+                      <input
+                        type="text"
+                        className="form-control"
+                        style={{ fontSize: '0.82rem', padding: '6px 12px' }}
+                        value={unitConceptInputs[idx] || ''}
+                        onChange={(e) => setUnitConceptInputs(prev => ({ ...prev, [idx]: e.target.value }))}
+                        placeholder="+ Add technical topic under this unit..."
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddConceptToUnit(idx); }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ fontSize: '0.8rem', padding: '6px 14px', whiteSpace: 'nowrap' }}
+                        onClick={() => handleAddConceptToUnit(idx)}
+                      >
+                        + Add Topic
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Custom Unit Row */}
+            <div style={{
+              background: 'rgba(30, 41, 59, 0.35)',
+              border: '1px dashed rgba(59, 130, 246, 0.35)',
+              borderRadius: '8px',
+              padding: '16px 20px',
+              display: 'grid',
+              gridTemplateColumns: '130px 1fr 140px 100px auto',
+              gap: '12px',
+              alignItems: 'end'
+            }}>
               <div>
-                <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '4px' }}>Topic / Chapter Title</label>
+                <label className="form-label" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Unit Label</label>
                 <input
                   type="text"
                   className="form-control"
-                  value={newTopicName}
-                  onChange={(e) => setNewTopicName(e.target.value)}
-                  placeholder="e.g. Exception Handling & Multithreading Synchronizations"
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddTopic(); }}
+                  placeholder={`Unit-${['I','II','III','IV','V','VI'][topics.length] || (topics.length + 1)}`}
+                  id="new-unit-label"
                 />
               </div>
               <div>
-                <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '4px' }}>Weightage (%)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Unit Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. Advanced Security & Microservices Architecture"
+                  id="new-unit-title"
+                />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Hours</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. 12 Hours"
+                  id="new-unit-hours"
+                />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Weight (%)</label>
                 <input
                   type="number"
                   className="form-control"
+                  defaultValue={20}
                   min={1}
                   max={100}
-                  value={newTopicWeight}
-                  onChange={(e) => setNewTopicWeight(e.target.value)}
+                  id="new-unit-weight"
                 />
               </div>
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={handleAddTopic}
                 style={{ fontSize: '0.85rem', padding: '9px 18px' }}
+                onClick={() => {
+                  const lbl = document.getElementById('new-unit-label')?.value || '';
+                  const ttl = document.getElementById('new-unit-title')?.value || '';
+                  const hrs = document.getElementById('new-unit-hours')?.value || '';
+                  const wt = document.getElementById('new-unit-weight')?.value || '20';
+                  if (!ttl.trim()) {
+                    showNotification('Please enter a unit title', 'error');
+                    return;
+                  }
+                  handleAddCustomUnit(lbl.trim(), ttl.trim(), hrs.trim(), wt);
+                  if (document.getElementById('new-unit-title')) document.getElementById('new-unit-title').value = '';
+                }}
               >
-                + Add Topic
+                + Add Unit
               </button>
-            </div>
-
-            {/* Topics List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {topics.map((t, idx) => (
-                <div
-                  key={t.id}
-                  style={{
-                    background: 'rgba(15, 23, 42, 0.65)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '8px',
-                    padding: '12px 18px',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 120px 40px',
-                    gap: '14px',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div style={{ fontWeight: 600, fontSize: '0.92rem', color: '#f1f5f9' }}>
-                    {t.name}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={t.weight}
-                      onChange={(e) => handleUpdateTopicWeight(idx, e.target.value)}
-                      style={{ fontSize: '0.85rem', padding: '4px 8px', textAlign: 'center' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>%</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="blueprint-icon-btn"
-                    onClick={() => handleDeleteTopic(idx)}
-                    title="Delete Topic"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         )}
@@ -2600,15 +3958,15 @@ const QPGenerator = () => {
                   {previewDoc?.extracted_text ? `✓ Indexed: ${previewDoc.extracted_text.length.toLocaleString()} characters (${previewDoc.extracted_text.split(/\s+/).filter(Boolean).length.toLocaleString()} words)` : previewDoc?.text_length ? `✓ Indexed: ${previewDoc.text_length.toLocaleString()} characters` : ''}
                 </span>
                 {previewDoc?.id && (
-                  <a
-                    href={documentService.getDownloadUrl(previewDoc.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={(e) => handleDownloadDoc(previewDoc, e)}
                     className="btn btn-secondary btn-sm"
-                    style={{ fontSize: '0.75rem', padding: '3px 10px', textDecoration: 'none' }}
+                    style={{ fontSize: '0.78rem', padding: '5px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                    title="Download this original file directly to your computer"
                   >
                     📥 Download Original File
-                  </a>
+                  </button>
                 )}
               </div>
             </>
@@ -2619,7 +3977,12 @@ const QPGenerator = () => {
               <button
                 type="button"
                 className={`btn ${selectedDocIds.includes(previewDoc.id) ? 'btn-danger' : 'btn-primary'}`}
-                onClick={() => toggleDocSelection(previewDoc.id)}
+                onClick={() => {
+                  toggleDocSelection(previewDoc.id);
+                  if (previewDoc.course_id && String(previewDoc.course_id) !== String(selectedCourse)) {
+                    setSelectedCourse(String(previewDoc.course_id));
+                  }
+                }}
                 style={{ fontSize: '0.86rem' }}
               >
                 {selectedDocIds.includes(previewDoc.id) ? '✕ Remove from AI Generation' : '✓ Select for AI Generation'}
@@ -2656,7 +4019,7 @@ const QPGenerator = () => {
                 Questions are synthesized strictly aligned with your Course Outcomes (COs) and Syllabus. Edit any question text directly below before archiving.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -2670,407 +4033,37 @@ const QPGenerator = () => {
                 onClick={handleSaveToArchive}
                 disabled={saving}
               >
-                {saving ? 'Saving...' : '💾 Save to Department Archive'}
+                {saving ? 'Saving...' : savedPaper ? '✓ Saved to Archive' : '💾 Save to Department Archive'}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  borderColor: '#10b981',
+                  fontWeight: 600
+                }}
+                onClick={handleOpenProtectModal}
+                disabled={saving}
+              >
+                🔒 Protect PDF with Password
               </button>
             </div>
           </div>
 
           {/* Formatted Question Paper Sheet */}
-          <div id="printable-question-paper" className="printable-paper-sheet glass-card" style={{
+          <div id="printable-question-paper" className="academic-qp-sheet" style={{
             backgroundColor: '#ffffff',
-            color: '#0f172a',
-            padding: '44px 50px',
             borderRadius: '8px',
-            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            marginBottom: '24px'
           }}>
-            {/* Header */}
-            <div className="printable-paper-header" style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '16px', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 4px 0', color: '#0f172a', textTransform: 'uppercase' }}>
-                {generatedPaper.institution_name}
-              </h2>
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase' }}>
-                {generatedPaper.department_name}
-              </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '8px', color: '#1e293b' }}>
-                {generatedPaper.title} - Academic Year {generatedPaper.academic_year}
-              </div>
-            </div>
-
-            {/* Metadata Grid */}
-            <div className="printable-metadata-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.92rem', marginBottom: '20px', borderBottom: '1px solid #cbd5e1', paddingBottom: '12px' }}>
-              <div><strong>Course: </strong>{generatedPaper.course_name} ({generatedPaper.course_code})</div>
-              <div style={{ textAlign: 'right' }}><strong>Semester: </strong>{generatedPaper.semester}</div>
-              <div><strong>Duration: </strong>{generatedPaper.duration}</div>
-              <div style={{ textAlign: 'right' }}><strong>Max. Marks: </strong>{generatedPaper.total_marks}</div>
-              <div><strong>Date: </strong>{generatedPaper.exam_date || examDate}</div>
-            </div>
-
-            {/* Special Instructions */}
-            {generatedPaper.special_instructions && (
-              <div className="printable-instructions-box" style={{
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                padding: '10px 14px',
-                fontSize: '0.85rem',
-                color: '#475569',
-                marginBottom: '24px',
-                whiteSpace: 'pre-line'
-              }}>
-                <strong>Instructions:</strong><br />
-                {generatedPaper.special_instructions}
-              </div>
-            )}
-
-            {/* Sections */}
-            {generatedPaper.sections && generatedPaper.sections.map((section, sIdx) => (
-              <div key={sIdx} style={{ marginBottom: '32px' }}>
-                <div className="printable-section-header" style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  backgroundColor: '#f1f5f9',
-                  padding: '8px 14px',
-                  borderRadius: '4px',
-                  fontWeight: 800,
-                  fontSize: '0.95rem',
-                  marginBottom: '6px',
-                  color: '#1e293b'
-                }}>
-                  <span>{section.section_name} ({section.section_type || 'General'})</span>
-                  <span>[{section.section_marks} Marks]</span>
-                </div>
-                <div style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#64748b', marginBottom: '14px' }}>
-                  {section.instruction}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {section.questions && section.questions.map((q, qIdx) => {
-                    const isChoice = q.has_internal_choice || 
-                      (q.q_no && String(q.q_no).toLowerCase().includes('or')) || 
-                      (q.question && (/\[OR\]|\(OR\)/i).test(q.question));
-
-                    const orParts = q.question ? q.question.split(/\s*(?:\[OR\]|\(OR\))\s*/i) : [];
-                    const hasChoiceParts = isChoice && orParts.length >= 2;
-
-                    let q1No = q.q1_no;
-                    let q2No = q.q2_no;
-                    if (!q1No || !q2No) {
-                      if (q.q_no && String(q.q_no).toLowerCase().includes('or')) {
-                        const parts = String(q.q_no).split(/\s*(?:or|\/)\s*/i);
-                        q1No = q1No || parts[0]?.trim();
-                        q2No = q2No || parts[1]?.trim();
-                      } else if (q.q_no && String(q.q_no).includes('/')) {
-                        const parts = String(q.q_no).split(/\s*\/\s*/i);
-                        q1No = q1No || parts[0]?.trim();
-                        q2No = q2No || parts[1]?.trim();
-                      } else if (q.q_no && !isNaN(parseInt(q.q_no, 10))) {
-                        const num = parseInt(q.q_no, 10);
-                        q1No = q1No || `${num}`;
-                        q2No = q2No || `${num + 1}`;
-                      }
-                    }
-
-                    const cleanQ1 = q1No ? String(q1No).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : '';
-                    const cleanQ2 = q2No ? String(q2No).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : '';
-                    const cleanSingle = q.q_no ? String(q.q_no).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : `${qIdx + 1}`;
-
-                    const part1 = orParts[0]?.trim() || '';
-                    const part2 = orParts.slice(1).join('\n\n                                    [OR]\n\n').trim() || '';
-
-                    if (hasChoiceParts) {
-                      return (
-                        <div key={qIdx} className="printable-choice-block" style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '6px',
-                          padding: '10px 0 14px 0',
-                          borderBottom: '1px dashed #cbd5e1'
-                        }}>
-                          {/* Part 1: Question 1 (e.g. Q8) */}
-                          <div className="printable-question-row" style={{
-                            display: 'grid',
-                            gridTemplateColumns: '70px 1fr 190px',
-                            gap: '12px',
-                            alignItems: 'start'
-                          }}>
-                            <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.95rem' }}>
-                              <span>Q{cleanQ1 || 'A'}.</span>
-                            </div>
-                            <div>
-                              <textarea
-                                className="screen-only-textarea"
-                                value={part1}
-                                onChange={(e) => {
-                                  const updated = `${e.target.value}\n\n                                    [OR]\n\n${part2}`;
-                                  handleQuestionTextChange(sIdx, qIdx, updated);
-                                }}
-                                style={{
-                                  width: '100%',
-                                  border: '1px solid transparent',
-                                  backgroundColor: 'transparent',
-                                  color: '#0f172a',
-                                  fontFamily: 'inherit',
-                                  fontSize: '0.92rem',
-                                  lineHeight: 1.5,
-                                  resize: 'vertical',
-                                  padding: '4px',
-                                  whiteSpace: 'pre-wrap'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#94a3b8'}
-                                onBlur={(e) => e.target.style.borderColor = 'transparent'}
-                                rows={Math.max(2, part1.split('\n').length + 1)}
-                              />
-                              <div className="print-only-text" style={{ display: 'none', color: '#0f172a', fontSize: '0.92rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
-                                {part1}
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right', fontSize: '0.82rem', color: '#475569' }}>
-                              <span style={{ fontWeight: 800, color: '#0f172a' }}>[{q.marks}M]</span>
-                              {(q.q1_bloom || q.bloom_level) && <span> • {q.q1_bloom || q.bloom_level}</span>}
-                              <span className="no-print" style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center' }}>
-                                <select
-                                  value={q.q1_co || q.co || 'CO1'}
-                                  onChange={(e) => handleQuestionCOChange(sIdx, qIdx, e.target.value, 'q1')}
-                                  style={{
-                                    background: '#e0f2fe',
-                                    color: '#0284c7',
-                                    border: '1px solid #7dd3fc',
-                                    borderRadius: '4px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: 700,
-                                    cursor: 'pointer',
-                                    outline: 'none'
-                                  }}
-                                  title="Select Course Outcome (CO) for Question 1"
-                                >
-                                  {outcomes.map(oc => (
-                                    <option key={oc.id} value={oc.id}>
-                                      {oc.id} ({oc.unit || oc.bloom_level})
-                                    </option>
-                                  ))}
-                                  {(q.q1_co || q.co) && !outcomes.some(oc => oc.id === (q.q1_co || q.co)) && (
-                                    <option value={q.q1_co || q.co}>{q.q1_co || q.co}</option>
-                                  )}
-                                </select>
-                              </span>
-                              <span className="print-only-text" style={{
-                                display: 'none',
-                                marginLeft: '4px',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                background: '#e0f2fe',
-                                color: '#0284c7',
-                                fontWeight: 700,
-                                fontSize: '0.78rem'
-                              }}>
-                                {q.q1_co || q.co || 'CO1'}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Centered OR Divider */}
-                          <div className="printable-or-divider" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '8px 0',
-                            position: 'relative'
-                          }}>
-                            <div style={{
-                              position: 'absolute',
-                              left: '70px',
-                              right: '190px',
-                              top: '50%',
-                              borderTop: '1px dashed #cbd5e1',
-                              zIndex: 0
-                            }} />
-                            <span style={{
-                              position: 'relative',
-                              zIndex: 1,
-                              backgroundColor: '#ffffff',
-                              padding: '0 18px',
-                              fontWeight: 800,
-                              fontSize: '0.88rem',
-                              color: '#334155',
-                              letterSpacing: '2px'
-                            }}>
-                              [ OR ]
-                            </span>
-                          </div>
-
-                          {/* Part 2: Question 2 (e.g. Q9) */}
-                          <div className="printable-question-row" style={{
-                            display: 'grid',
-                            gridTemplateColumns: '70px 1fr 190px',
-                            gap: '12px',
-                            alignItems: 'start'
-                          }}>
-                            <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.95rem' }}>
-                              <span>Q{cleanQ2 || 'B'}.</span>
-                            </div>
-                            <div>
-                              <textarea
-                                className="screen-only-textarea"
-                                value={part2}
-                                onChange={(e) => {
-                                  const updated = `${part1}\n\n                                    [OR]\n\n${e.target.value}`;
-                                  handleQuestionTextChange(sIdx, qIdx, updated);
-                                }}
-                                style={{
-                                  width: '100%',
-                                  border: '1px solid transparent',
-                                  backgroundColor: 'transparent',
-                                  color: '#0f172a',
-                                  fontFamily: 'inherit',
-                                  fontSize: '0.92rem',
-                                  lineHeight: 1.5,
-                                  resize: 'vertical',
-                                  padding: '4px',
-                                  whiteSpace: 'pre-wrap'
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = '#94a3b8'}
-                                onBlur={(e) => e.target.style.borderColor = 'transparent'}
-                                rows={Math.max(2, part2.split('\n').length + 1)}
-                              />
-                              <div className="print-only-text" style={{ display: 'none', color: '#0f172a', fontSize: '0.92rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
-                                {part2}
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right', fontSize: '0.82rem', color: '#475569' }}>
-                              <span style={{ fontWeight: 800, color: '#0f172a' }}>[{q.marks}M]</span>
-                              {(q.q2_bloom || q.bloom_level) && <span> • {q.q2_bloom || q.bloom_level}</span>}
-                              <span className="no-print" style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center' }}>
-                                <select
-                                  value={q.q2_co || q.co || 'CO2'}
-                                  onChange={(e) => handleQuestionCOChange(sIdx, qIdx, e.target.value, 'q2')}
-                                  style={{
-                                    background: '#e0f2fe',
-                                    color: '#0284c7',
-                                    border: '1px solid #7dd3fc',
-                                    borderRadius: '4px',
-                                    padding: '2px 6px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: 700,
-                                    cursor: 'pointer',
-                                    outline: 'none'
-                                  }}
-                                  title="Select Course Outcome (CO) for Question 2 (Internal Choice)"
-                                >
-                                  {outcomes.map(oc => (
-                                    <option key={oc.id} value={oc.id}>
-                                      {oc.id} ({oc.unit || oc.bloom_level})
-                                    </option>
-                                  ))}
-                                  {(q.q2_co || q.co) && !outcomes.some(oc => oc.id === (q.q2_co || q.co)) && (
-                                    <option value={q.q2_co || q.co}>{q.q2_co || q.co}</option>
-                                  )}
-                                </select>
-                              </span>
-                              <span className="print-only-text" style={{
-                                display: 'none',
-                                marginLeft: '4px',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                background: '#e0f2fe',
-                                color: '#0284c7',
-                                fontWeight: 700,
-                                fontSize: '0.78rem'
-                              }}>
-                                {q.q2_co || q.co || 'CO2'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={qIdx} className="printable-question-row" style={{
-                        display: 'grid',
-                        gridTemplateColumns: '70px 1fr 190px',
-                        gap: '12px',
-                        alignItems: 'start',
-                        padding: '12px 0',
-                        borderBottom: '1px dashed #e2e8f0'
-                      }}>
-                        <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '0.95rem' }}>
-                          <span>Q{cleanSingle}.</span>
-                        </div>
-                        <div>
-                          <textarea
-                            className="screen-only-textarea"
-                            value={q.question}
-                            onChange={(e) => handleQuestionTextChange(sIdx, qIdx, e.target.value)}
-                            style={{
-                              width: '100%',
-                              border: '1px solid transparent',
-                              backgroundColor: 'transparent',
-                              color: '#0f172a',
-                              fontFamily: 'inherit',
-                              fontSize: '0.92rem',
-                              lineHeight: 1.5,
-                              resize: 'vertical',
-                              padding: '4px',
-                              whiteSpace: 'pre-wrap'
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = '#94a3b8'}
-                            onBlur={(e) => e.target.style.borderColor = 'transparent'}
-                            rows={q.type === 'MCQ' ? 5 : q.type === 'Long Answer' ? 6 : 2}
-                          />
-                          <div className="print-only-text" style={{ display: 'none', color: '#0f172a', fontSize: '0.92rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
-                            {q.question}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right', fontSize: '0.82rem', color: '#475569' }}>
-                          <span style={{ fontWeight: 800, color: '#0f172a' }}>[{q.marks}M]</span>
-                          {q.bloom_level && <span> • {q.bloom_level}</span>}
-                          <span className="no-print" style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center' }}>
-                            <select
-                              value={q.co || 'CO1'}
-                              onChange={(e) => handleQuestionCOChange(sIdx, qIdx, e.target.value)}
-                              style={{
-                                background: '#e0f2fe',
-                                color: '#0284c7',
-                                border: '1px solid #7dd3fc',
-                                borderRadius: '4px',
-                                padding: '2px 6px',
-                                fontSize: '0.78rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                outline: 'none'
-                              }}
-                              title="Select Course Outcome (CO) for this question"
-                            >
-                              {outcomes.map(oc => (
-                                <option key={oc.id} value={oc.id}>
-                                  {oc.id} ({oc.unit || oc.bloom_level})
-                                </option>
-                              ))}
-                              {q.co && !outcomes.some(oc => oc.id === q.co) && (
-                                <option value={q.co}>{q.co}</option>
-                              )}
-                            </select>
-                          </span>
-                          <span className="print-only-text" style={{
-                            display: 'none',
-                            marginLeft: '4px',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            background: '#e0f2fe',
-                            color: '#0284c7',
-                            fontWeight: 700,
-                            fontSize: '0.78rem'
-                          }}>
-                            {q.co || 'CO1'}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+            <AcademicQuestionPaper
+              paper={generatedPaper}
+              editable={true}
+              onQuestionChange={handleAcademicQuestionChange}
+            />
+          </div>
 
             {/* Course Outcomes Alignment & Coverage Matrix */}
             {generatedPaper.co_matrix && generatedPaper.co_matrix.length > 0 && (
@@ -3114,8 +4107,28 @@ const QPGenerator = () => {
                 </div>
               </div>
             )}
-          </div>
         </div>
+      )}
+
+      {/* Protect Paper with Password Modal */}
+      {showProtectModal && (savedPaper || generatedPaper) && (
+        <ProtectQPModal
+          isOpen={showProtectModal}
+          onClose={() => setShowProtectModal(false)}
+          paper={savedPaper || {
+            ...generatedPaper,
+            id: savedPaper?.id,
+            title: generatedPaper?.title || title,
+            course_name: generatedPaper?.course_name,
+            course_code: generatedPaper?.course_code,
+            total_marks: generatedPaper?.total_marks || totalCalculatedMarks
+          }}
+          paperId={savedPaper?.id}
+          paperTitle={savedPaper?.title || generatedPaper?.title || title}
+          onSuccess={() => {
+            showNotification('Question paper successfully protected. Password shared with the selected faculty members.');
+          }}
+        />
       )}
     </div>
   );

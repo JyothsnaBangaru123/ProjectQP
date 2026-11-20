@@ -12,6 +12,9 @@ const Sidebar = () => {
   if (isFaculty) {
     menuItems = [
       { path: '/faculty', label: 'Upload Content', icon: '📤' },
+      { path: '/faculty/evaluation', label: 'Student Marks Entry', icon: '📝' },
+      { path: '/faculty/co-evaluation', label: 'CO Evaluation & Attainment', icon: '🎯' },
+      { path: '/papers', label: 'Question Papers', icon: '🗄️' },
       { path: '/courses', label: 'Courses Catalog', icon: '📘' }
     ];
   } else if (isHOD) {
@@ -19,6 +22,7 @@ const Sidebar = () => {
       { path: '/hod', label: 'Department Hub', icon: '📊' },
       { path: '/hod/generate', label: 'Generate Question Paper', icon: '⚡' },
       { path: '/hod/papers', label: 'QP Archives', icon: '🗄️' },
+      { path: '/faculty/co-evaluation', label: 'CO Attainment Analytics', icon: '🎯' },
       { path: '/courses', label: 'Courses Catalog', icon: '📘' }
     ];
   } else {
@@ -43,7 +47,8 @@ const Sidebar = () => {
         icon: '🧩',
         matchPaths: ['/addons', '/blooms', '/qlevels']
       },
-      { path: '/hod/papers', label: 'Question Papers', icon: '🗄️' }
+      { path: '/hod/papers', label: 'Question Papers', icon: '🗄️' },
+      { path: '/faculty/co-evaluation', label: 'CO Attainment Analytics', icon: '🎯' }
     ];
   }
 

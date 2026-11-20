@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { documentService } from '../../services/documentService';
 import { courseService } from '../../services/courseService';
@@ -9,6 +10,7 @@ import Loader from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
 
 const FacultyUpload = () => {
+  const navigate = useNavigate();
   const { user, branchName, branchId } = useAuth();
   
   const [courses, setCourses] = useState([]);
@@ -170,13 +172,31 @@ const FacultyUpload = () => {
               {branchName ? `Department: ${branchName}` : 'Upload course syllabus, lecture materials, and question banks for question paper generation.'}
             </p>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent-cyan, #06b6d4)' }}>
-              {documents.length}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ textAlign: 'right', marginRight: '8px' }}>
+              <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent-cyan, #06b6d4)' }}>
+                {documents.length}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                Uploaded Documents
+              </div>
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Uploaded Documents
-            </div>
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate('/faculty/co-evaluation')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', fontSize: '0.92rem' }}
+            >
+              <span>🎯</span>
+              <span>CO Attainment</span>
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate('/faculty/evaluation')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 18px', fontSize: '0.92rem' }}
+            >
+              <span>📝</span>
+              <span>Student Marks Entry</span>
+            </button>
           </div>
         </div>
       </div>

@@ -12,3 +12,5 @@ from app.models.bcmapping import BCMapping
 from app.models.role import Role
 from app.models.course_document import CourseDocument
 from app.models.question_paper import QuestionPaper
+from app.models.student import Student
+from app.models.paper_shared_recipient import PaperSharedRecipient

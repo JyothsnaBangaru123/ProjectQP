@@ -141,7 +141,7 @@ const Blooms = () => {
       <div className="card-header">
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Blooms Taxonomy</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Manage cognitive levels (e.g. Remember, Understand, Apply, Analyze).</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Manage cognitive levels (e.g. Remember, Understand, Apply, Analyze, Create).</p>
         </div>
         <button className="btn btn-primary" onClick={handleOpenAdd}>
           ➕ Add Bloom Level
@@ -207,7 +207,7 @@ const Blooms = () => {
                 name="taxonomy"
                 value={formData.taxonomy}
                 onChange={handleFormChange}
-                placeholder="e.g. Remembering / Synthesizing / Creating"
+                placeholder="e.g. Remember / Understand / Apply"
                 required
               />
               <select

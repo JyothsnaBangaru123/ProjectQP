@@ -5,10 +5,14 @@ import { qpService } from '../../services/qpService';
 import Loader from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ProtectQPModal from '../../components/common/ProtectQPModal';
+import QPSharingDetailsModal from '../../components/common/QPSharingDetailsModal';
+import UnlockQPModal from '../../components/common/UnlockQPModal';
+import AcademicQuestionPaper from '../../components/common/AcademicQuestionPaper';
 
 const QPHistory = () => {
   const navigate = useNavigate();
-  const { isHOD } = useAuth();
+  const { isHOD, isFaculty } = useAuth();
 
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +22,20 @@ const QPHistory = () => {
   // View Paper Modal
   const [selectedPaper, setSelectedPaper] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+
+  // Security & Protection Modals
+  const [protectingPaper, setProtectingPaper] = useState(null);
+  const [sharingDetailsPaper, setSharingDetailsPaper] = useState(null);
+  const [unlockingPaper, setUnlockingPaper] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const handleViewAndPrint = (paper) => {
+    if (paper.is_password_protected) {
+      setUnlockingPaper(paper);
+    } else {
+      setSelectedPaper(paper);
+    }
+  };
 
   const fetchPapers = async () => {
     setLoading(true);
@@ -40,10 +58,10 @@ const QPHistory = () => {
   const showNotification = (msg, type = 'success') => {
     if (type === 'success') {
       setSuccessMsg(msg);
-      setTimeout(() => setSuccessMsg(''), 4000);
+      setTimeout(() => setSuccessMsg(''), 5000);
     } else {
       setError(msg);
-      setTimeout(() => setError(''), 4000);
+      setTimeout(() => setError(''), 5000);
     }
   };
 
@@ -77,6 +95,18 @@ const QPHistory = () => {
     }
   };
 
+  const handleDownloadProtected = async (paper) => {
+    setDownloadingId(paper.id);
+    try {
+      await qpService.downloadProtectedPDF(paper.id, paper.title);
+      showNotification(`Downloaded encrypted PDF for "${paper.title}". Use the password sent to your email to open it.`);
+    } catch (err) {
+      showNotification(err.message || 'Failed to download encrypted question paper.', 'error');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   return (
     <div>
       <div className="card-header" style={{ marginBottom: '20px' }}>
@@ -85,7 +115,9 @@ const QPHistory = () => {
             {isHOD ? 'Department Question Paper Archives' : 'Question Paper Archives'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-            Browse, review, and print finalized examination question papers.
+            {isHOD
+              ? 'Browse, review, password-protect, and selectively distribute examination question papers.'
+              : 'Browse authorized question papers and securely download encrypted examination PDFs.'}
           </p>
         </div>
         {isHOD && (
@@ -99,9 +131,9 @@ const QPHistory = () => {
         <div style={{
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           border: '1px solid rgba(16, 185, 129, 0.2)',
-          color: 'var(--status-active)',
+          color: 'var(--status-active, #10b981)',
           padding: '12px 16px',
-          borderRadius: 'var(--border-radius)',
+          borderRadius: 'var(--border-radius, 8px)',
           fontSize: '0.95rem',
           marginBottom: '20px',
           fontWeight: 500
@@ -114,9 +146,9 @@ const QPHistory = () => {
         <div style={{
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           border: '1px solid rgba(239, 68, 68, 0.2)',
-          color: 'var(--status-inactive)',
+          color: 'var(--status-inactive, #ef4444)',
           padding: '12px 16px',
-          borderRadius: 'var(--border-radius)',
+          borderRadius: 'var(--border-radius, 8px)',
           fontSize: '0.95rem',
           marginBottom: '20px',
           fontWeight: 500
@@ -136,7 +168,7 @@ const QPHistory = () => {
           <p style={{ fontSize: '0.92rem', marginTop: '6px' }}>
             {isHOD 
               ? 'Generate your first examination paper from uploaded course documents.' 
-              : 'Archived examination question papers generated across departments will appear here.'}
+              : 'Archived examination question papers will appear here once generated.'}
           </p>
           {isHOD && (
             <button
@@ -149,78 +181,345 @@ const QPHistory = () => {
           )}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '16px' }}>
-          {papers.map((paper) => (
-            <div key={paper.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <span style={{
-                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-                    color: 'var(--accent-purple, #8b5cf6)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700
-                  }}>
-                    {paper.total_marks} MARKS
-                  </span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    {paper.created_at ? paper.created_at.split(' ')[0] : ''}
-                  </span>
-                </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
+          {papers.map((paper) => {
+            const isProtected = !!paper.is_password_protected;
+            const canDownload = paper.can_download !== false;
+            const isFacultyRestricted = isFaculty && isProtected && !paper.can_download;
 
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
-                  {paper.title}
-                </h4>
+            return (
+              <div
+                key={paper.id}
+                className="glass-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  border: isProtected ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+                  position: 'relative'
+                }}
+              >
+                <div>
+                  {/* Status Badges Header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <span style={{
+                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        color: 'var(--accent-purple, #8b5cf6)',
+                        border: '1px solid rgba(99, 102, 241, 0.3)',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700
+                      }}>
+                        {paper.total_marks} MARKS
+                      </span>
 
-                <div style={{ fontSize: '0.92rem', color: 'var(--accent-cyan, #06b6d4)', fontWeight: 600, marginBottom: '8px' }}>
-                  📘 {paper.course_name} ({paper.course_code})
-                </div>
+                      {isProtected ? (
+                        <span style={{
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🔒 AES-256 Protected
+                        </span>
+                      ) : (
+                        <span style={{
+                          backgroundColor: 'rgba(148, 163, 184, 0.15)',
+                          color: '#94a3b8',
+                          border: '1px solid rgba(148, 163, 184, 0.3)',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600
+                        }}>
+                          🔓 Standard (Unencrypted)
+                        </span>
+                      )}
+                    </div>
 
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  AY: {paper.academic_year} • Semester: {paper.sem} • Duration: {paper.duration}
-                </div>
-
-                {paper.hod_name && (
-                  <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                    Generated by: <strong style={{ color: 'var(--text-primary)' }}>{paper.hod_name}</strong>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                      {paper.created_at ? paper.created_at.split(' ')[0] : ''}
+                    </span>
                   </div>
-                )}
-              </div>
 
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px', borderTop: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))', paddingTop: '12px' }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  style={{ flex: 1, padding: '7px 10px', fontSize: '0.85rem' }}
-                  onClick={() => setSelectedPaper(paper)}
-                >
-                  👁️ View & Print
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  style={{ padding: '7px 12px', fontSize: '0.85rem' }}
-                  onClick={() => setDeleteId(paper.id)}
-                  title="Delete from archive"
-                >
-                  🗑️
-                </button>
+                  {/* Title & Course Info */}
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                    {paper.title}
+                  </h4>
+
+                  <div style={{ fontSize: '0.92rem', color: 'var(--accent-cyan, #06b6d4)', fontWeight: 600, marginBottom: '8px' }}>
+                    📘 {paper.course_name} ({paper.course_code})
+                  </div>
+
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                    AY: {paper.academic_year} • Semester: {paper.sem} • Duration: {paper.duration}
+                  </div>
+
+                  {paper.hod_name && (
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                      Generated by: <strong style={{ color: 'var(--text-primary)' }}>{paper.hod_name}</strong>
+                    </div>
+                  )}
+
+                  {/* Security Timestamp & Details */}
+                  {isProtected && paper.protected_at && (
+                    <div style={{
+                      backgroundColor: 'rgba(15, 23, 42, 0.45)',
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      fontSize: '0.78rem',
+                      color: '#cbd5e1',
+                      marginTop: '8px',
+                      border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                      <div>
+                        🔒 Protected: <strong>{new Date(paper.protected_at).toLocaleString()}</strong>
+                      </div>
+                      {isHOD && paper.shared_count !== undefined && (
+                        <div style={{ marginTop: '2px', color: '#38bdf8' }}>
+                          👥 Shared with <strong>{paper.shared_count}</strong> faculty member(s)
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Role Specific Notice Banners */}
+                  {isFaculty && isProtected && (
+                    <div style={{ marginTop: '10px' }}>
+                      {paper.can_download ? (
+                        <div style={{
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          border: '1px solid rgba(16, 185, 129, 0.25)',
+                          color: '#10b981',
+                          padding: '7px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: 500
+                        }}>
+                          ✓ Authorized — Password delivered to your email
+                        </div>
+                      ) : (
+                        <div style={{
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.25)',
+                          color: '#f87171',
+                          padding: '7px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: 500
+                        }}>
+                          🔒 Access Restricted — HOD has not shared the password with you
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions Section */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  marginTop: '16px',
+                  borderTop: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+                  paddingTop: '12px'
+                }}>
+                  {/* Primary Row */}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {/* HOD Actions */}
+                    {isHOD && (
+                      <>
+                        {!isProtected ? (
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            style={{
+                              flex: 1,
+                              padding: '7px 10px',
+                              fontSize: '0.85rem',
+                              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                              borderColor: '#10b981'
+                            }}
+                            onClick={() => setProtectingPaper(paper)}
+                          >
+                            🔒 Protect PDF with Password
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ flex: 1, padding: '7px 10px', fontSize: '0.82rem', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                              onClick={() => setSharingDetailsPaper(paper)}
+                            >
+                              ⚙️ Sharing Details
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              style={{ flex: 1, padding: '7px 10px', fontSize: '0.82rem' }}
+                              disabled={downloadingId === paper.id}
+                              onClick={() => handleDownloadProtected(paper)}
+                            >
+                              {downloadingId === paper.id ? 'Downloading...' : '⬇️ Download PDF'}
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '7px 10px', fontSize: '0.85rem' }}
+                          onClick={() => handleViewAndPrint(paper)}
+                          title={isProtected ? "Enter password to view and print" : "View and print paper"}
+                        >
+                          👁️ View &amp; Print
+                        </button>
+
+                        {isProtected && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: '7px 8px', fontSize: '0.8rem', color: '#38bdf8' }}
+                            onClick={() => setProtectingPaper(paper)}
+                            title="Re-encrypt question paper or reset password"
+                          >
+                            🔒 Re-protect
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          style={{ padding: '7px 12px', fontSize: '0.85rem' }}
+                          onClick={() => setDeleteId(paper.id)}
+                          title="Delete from archive"
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
+
+                    {/* Faculty Actions */}
+                    {isFaculty && (
+                      <>
+                        {isProtected ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              style={{
+                                flex: 1,
+                                padding: '8px 12px',
+                                fontSize: '0.88rem',
+                                opacity: isFacultyRestricted ? 0.5 : 1,
+                                cursor: isFacultyRestricted ? 'not-allowed' : 'pointer'
+                              }}
+                              disabled={isFacultyRestricted || downloadingId === paper.id}
+                              onClick={() => !isFacultyRestricted && handleDownloadProtected(paper)}
+                              title={isFacultyRestricted ? 'Access restricted: Contact HOD for authorization' : 'Download AES-256 encrypted PDF'}
+                            >
+                              {downloadingId === paper.id
+                                ? 'Downloading Encrypted PDF...'
+                                : isFacultyRestricted
+                                ? '🔒 Access Restricted by HOD'
+                                : '⬇️ Download PDF'}
+                            </button>
+                            {!isFacultyRestricted && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 12px', fontSize: '0.88rem' }}
+                                onClick={() => handleViewAndPrint(paper)}
+                                title="Enter password to view and print"
+                              >
+                                👁️ View &amp; Print
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            style={{ flex: 1, padding: '7px 10px', fontSize: '0.85rem' }}
+                            onClick={() => handleViewAndPrint(paper)}
+                          >
+                            👁️ View &amp; Print
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {/* Admin Actions */}
+                    {!isHOD && !isFaculty && (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ flex: 1, padding: '7px 10px', fontSize: '0.85rem' }}
+                          onClick={() => handleViewAndPrint(paper)}
+                        >
+                          👁️ View &amp; Print
+                        </button>
+                        {isProtected && (
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            style={{ flex: 1, padding: '7px 10px', fontSize: '0.85rem' }}
+                            disabled={downloadingId === paper.id}
+                            onClick={() => handleDownloadProtected(paper)}
+                          >
+                            {downloadingId === paper.id ? 'Downloading...' : '⬇️ Download PDF'}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* View Paper Modal */}
+      {/* View Paper Modal (Standard Unencrypted View) */}
       <Modal
         isOpen={selectedPaper !== null}
         onClose={() => setSelectedPaper(null)}
         title={selectedPaper ? selectedPaper.title : 'Examination Paper'}
+        size="xl"
       >
         {selectedPaper && (
           <div>
+            {selectedPaper.is_password_protected && (
+              <div className="no-print" style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                color: '#10b981',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '0.84rem',
+                marginBottom: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>🔒</span>
+                <div>
+                  <strong>HOD Author Review Mode:</strong> This paper is password-protected with AES-256 for distribution.
+                  Faculty members cannot view the questions directly in their browser; they can only download the encrypted PDF file and must enter the emailed password in their PDF reader.
+                </div>
+              </div>
+            )}
+
             <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
               <button type="button" className="btn btn-secondary" onClick={handlePrintModal}>
                 🖨️ Print / Export PDF
@@ -228,158 +527,15 @@ const QPHistory = () => {
             </div>
 
             {/* Paper Sheet Preview */}
-            <div className="printable-paper-sheet" style={{
+            <div id="printable-question-paper" className="academic-qp-sheet" style={{
               backgroundColor: '#ffffff',
-              color: '#0f172a',
-              padding: '28px 32px',
-              borderRadius: '6px',
-              maxHeight: '440px',
-              overflowY: 'auto'
+              borderRadius: '8px',
+              maxHeight: '78vh',
+              overflowY: 'auto',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+              padding: '12px'
             }}>
-              <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0 0 2px 0', color: '#0f172a' }}>
-                  {selectedPaper.generated_content?.institution_name || 'GMR Institute of Technology'}
-                </h3>
-                <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#334155' }}>
-                  {selectedPaper.generated_content?.department_name || selectedPaper.branch_name || 'Department of Engineering'}
-                </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, marginTop: '6px', color: '#1e293b' }}>
-                  {selectedPaper.title} - AY {selectedPaper.academic_year}
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.85rem', marginBottom: '18px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px' }}>
-                <div><strong>Course: </strong>{selectedPaper.course_name} ({selectedPaper.course_code})</div>
-                <div style={{ textAlign: 'right' }}><strong>Semester: </strong>{selectedPaper.sem}</div>
-                <div><strong>Duration: </strong>{selectedPaper.duration}</div>
-                <div style={{ textAlign: 'right' }}><strong>Max. Marks: </strong>{selectedPaper.total_marks}</div>
-              </div>
-
-              {selectedPaper.generated_content?.sections?.map((sec, sIdx) => (
-                <div key={sIdx} style={{ marginBottom: '20px' }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    backgroundColor: '#f1f5f9',
-                    padding: '6px 10px',
-                    borderRadius: '4px',
-                    fontWeight: 700,
-                    fontSize: '0.88rem',
-                    marginBottom: '8px',
-                    color: '#1e293b'
-                  }}>
-                    <span>{sec.section_name}</span>
-                    <span>[{sec.section_marks} Marks]</span>
-                  </div>
-
-                  {sec.questions?.map((q, qIdx) => {
-                    const isChoice = q.has_internal_choice || 
-                      (q.q_no && String(q.q_no).toLowerCase().includes('or')) || 
-                      (q.question && (/\[OR\]|\(OR\)/i).test(q.question));
-
-                    const orParts = q.question ? q.question.split(/\s*(?:\[OR\]|\(OR\))\s*/i) : [];
-                    const hasChoiceParts = isChoice && orParts.length >= 2;
-
-                    let q1No = q.q1_no;
-                    let q2No = q.q2_no;
-                    if (!q1No || !q2No) {
-                      if (q.q_no && String(q.q_no).toLowerCase().includes('or')) {
-                        const parts = String(q.q_no).split(/\s*(?:or|\/)\s*/i);
-                        q1No = q1No || parts[0]?.trim();
-                        q2No = q2No || parts[1]?.trim();
-                      } else if (q.q_no && String(q.q_no).includes('/')) {
-                        const parts = String(q.q_no).split(/\s*\/\s*/i);
-                        q1No = q1No || parts[0]?.trim();
-                        q2No = q2No || parts[1]?.trim();
-                      } else if (q.q_no && !isNaN(parseInt(q.q_no, 10))) {
-                        const num = parseInt(q.q_no, 10);
-                        q1No = q1No || `${num}`;
-                        q2No = q2No || `${num + 1}`;
-                      }
-                    }
-
-                    const cleanQ1 = q1No ? String(q1No).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : '';
-                    const cleanQ2 = q2No ? String(q2No).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : '';
-                    const cleanSingle = q.q_no ? String(q.q_no).replace(/^Q\s*/i, '').replace(/\.+$/, '').trim() : `${qIdx + 1}`;
-
-                    const part1 = orParts[0]?.trim() || '';
-                    const part2 = orParts.slice(1).join('\n\n                                    [OR]\n\n').trim() || '';
-
-                    if (hasChoiceParts) {
-                      return (
-                        <div key={qIdx} className="printable-choice-block" style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '4px',
-                          padding: '6px 0 10px 0',
-                          borderBottom: '1px dashed #cbd5e1'
-                        }}>
-                          <div className="printable-question-row" style={{ display: 'grid', gridTemplateColumns: '70px 1fr 140px', gap: '8px', alignItems: 'start', fontSize: '0.88rem' }}>
-                            <div style={{ fontWeight: 700 }}>
-                              <span>Q{cleanQ1 || 'A'}.</span>
-                            </div>
-                            <div style={{ whiteSpace: 'pre-line' }}>{part1}</div>
-                            <div style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>
-                              [{q.marks}M] • {q.bloom_level}
-                            </div>
-                          </div>
-
-                          <div className="printable-or-divider" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '4px 0',
-                            position: 'relative'
-                          }}>
-                            <div style={{
-                              position: 'absolute',
-                              left: '70px',
-                              right: '140px',
-                              top: '50%',
-                              borderTop: '1px dashed #cbd5e1',
-                              zIndex: 0
-                            }} />
-                            <span style={{
-                              position: 'relative',
-                              zIndex: 1,
-                              backgroundColor: '#ffffff',
-                              padding: '0 14px',
-                              fontWeight: 800,
-                              fontSize: '0.82rem',
-                              color: '#475569',
-                              letterSpacing: '2px'
-                            }}>
-                              [ OR ]
-                            </span>
-                          </div>
-
-                          <div className="printable-question-row" style={{ display: 'grid', gridTemplateColumns: '70px 1fr 140px', gap: '8px', alignItems: 'start', fontSize: '0.88rem' }}>
-                            <div style={{ fontWeight: 700 }}>
-                              <span>Q{cleanQ2 || 'B'}.</span>
-                            </div>
-                            <div style={{ whiteSpace: 'pre-line' }}>{part2}</div>
-                            <div style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>
-                              [{q.marks}M] • {q.bloom_level}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={qIdx} className="printable-question-row" style={{ display: 'grid', gridTemplateColumns: '70px 1fr 140px', gap: '8px', padding: '6px 0', borderBottom: '1px dashed #e2e8f0', fontSize: '0.88rem' }}>
-                        <div style={{ fontWeight: 700 }}>
-                          <span>Q{cleanSingle}.</span>
-                        </div>
-                        <div style={{ whiteSpace: 'pre-line' }}>{q.question}</div>
-                        <div style={{ textAlign: 'right', fontSize: '0.8rem', color: '#64748b' }}>
-                          [{q.marks}M] • {q.bloom_level}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+              <AcademicQuestionPaper paper={selectedPaper} editable={false} />
             </div>
 
             <div className="modal-footer no-print">
@@ -390,6 +546,47 @@ const QPHistory = () => {
           </div>
         )}
       </Modal>
+
+      {/* HOD Protect QP Modal */}
+      {protectingPaper && (
+        <ProtectQPModal
+          isOpen={protectingPaper !== null}
+          onClose={() => setProtectingPaper(null)}
+          paper={protectingPaper}
+          paperId={protectingPaper.id}
+          paperTitle={protectingPaper.title}
+          onSuccess={() => {
+            fetchPapers();
+            showNotification(`Question paper "${protectingPaper.title}" successfully protected with password and distributed!`);
+          }}
+        />
+      )}
+
+      {/* HOD Sharing Details & Additional Recipients Modal */}
+      {sharingDetailsPaper && (
+        <QPSharingDetailsModal
+          isOpen={sharingDetailsPaper !== null}
+          onClose={() => setSharingDetailsPaper(null)}
+          paperId={sharingDetailsPaper.id}
+          paperTitle={sharingDetailsPaper.title}
+          onUpdated={() => {
+            fetchPapers();
+          }}
+        />
+      )}
+
+      {/* Password Unlock Modal for View & Print */}
+      {unlockingPaper && (
+        <UnlockQPModal
+          isOpen={unlockingPaper !== null}
+          onClose={() => setUnlockingPaper(null)}
+          paper={unlockingPaper}
+          onUnlocked={(unlockedPaper) => {
+            setUnlockingPaper(null);
+            setSelectedPaper(unlockedPaper);
+          }}
+        />
+      )}
 
       {/* Delete Confirmation */}
       <ConfirmDialog

@@ -28,8 +28,22 @@ def extract_text_from_file(file_path, file_type):
         if file_type == 'pdf':
             try:
                 doc = fitz.open(file_path)
+                ocr_engine = None
                 for page in doc:
-                    extracted_text += page.get_text() + "\n"
+                    page_text = page.get_text()
+                    # If page text is very short (e.g. scanned image/photo syllabus), run RapidOCR
+                    if len(page_text.strip()) < 30:
+                        try:
+                            from rapidocr_onnxruntime import RapidOCR
+                            if ocr_engine is None:
+                                ocr_engine = RapidOCR()
+                            pix = page.get_pixmap(dpi=200)
+                            res, _ = ocr_engine(pix.tobytes('png'))
+                            if res:
+                                page_text = "\n".join([item[1] for item in res])
+                        except Exception as ocr_err:
+                            print(f"RapidOCR fallback error: {ocr_err}")
+                    extracted_text += page_text + "\n"
                 doc.close()
             except Exception as pdf_err:
                 print(f"PDF extraction error: {pdf_err}")
@@ -45,11 +59,21 @@ def extract_text_from_file(file_path, file_type):
             try:
                 import docx
                 doc = docx.Document(file_path)
-                extracted_text = "\n".join([p.text for p in doc.paragraphs])
+                parts = []
+                for p in doc.paragraphs:
+                    if p.text.strip():
+                        parts.append(p.text.strip())
+                for table in doc.tables:
+                    for row in table.rows:
+                        row_vals = [c.text.strip() for c in row.cells if c.text.strip()]
+                        if row_vals:
+                            parts.append(" | ".join(row_vals))
+                extracted_text = "\n".join(parts)
             except Exception as docx_err:
                 print(f"DOCX extraction fallback: {docx_err}")
     except Exception as e:
         print(f"Text extraction error for {file_path}: {e}")
+    return extracted_text.strip()
 @documents_bp.route('/extract', methods=['POST'])
 @token_required
 def extract_file_text():
@@ -238,6 +262,24 @@ def get_document(id):
     if not doc:
         return jsonify({'success': False, 'message': 'Document not found'}), 404
     
+    # Auto-repair extracted_text if empty or missing
+    if not doc.extracted_text or len(doc.extracted_text.strip()) < 30:
+        upload_dir = get_upload_folder()
+        fpath = os.path.join(upload_dir, doc.file_path) if not os.path.isabs(doc.file_path) else doc.file_path
+        if not os.path.exists(fpath):
+            candidate = os.path.join(upload_dir, doc.file_name)
+            if os.path.exists(candidate):
+                fpath = candidate
+        if os.path.exists(fpath):
+            re_extracted = extract_text_from_file(fpath, doc.file_type)
+            if re_extracted and len(re_extracted) > len(doc.extracted_text or ''):
+                doc.extracted_text = re_extracted
+                try:
+                    db.session.commit()
+                except Exception as commit_err:
+                    db.session.rollback()
+                    print(f"Failed to save auto-repaired text: {commit_err}")
+
     d = doc.to_dict()
     d['extracted_text'] = doc.extracted_text
     d['extracted_text_preview'] = (doc.extracted_text[:1000] + '...') if doc.extracted_text and len(doc.extracted_text) > 1000 else doc.extracted_text
@@ -251,11 +293,30 @@ def download_document(id):
         return jsonify({'success': False, 'message': 'Document not found'}), 404
 
     upload_dir = get_upload_folder()
-    file_path = os.path.join(upload_dir, doc.file_path)
+    file_path = os.path.join(upload_dir, doc.file_path) if not os.path.isabs(doc.file_path) else doc.file_path
+    
     if not os.path.exists(file_path):
-        return jsonify({'success': False, 'message': 'File not found on server'}), 404
+        candidate = os.path.join(upload_dir, doc.file_name)
+        if os.path.exists(candidate):
+            file_path = candidate
+        else:
+            # Try finding by suffix of clean_filename
+            matched_file = None
+            for fname in os.listdir(upload_dir):
+                if fname.endswith(doc.file_name) or fname == doc.file_path:
+                    matched_file = os.path.join(upload_dir, fname)
+                    break
+            if matched_file and os.path.exists(matched_file):
+                file_path = matched_file
+            else:
+                return jsonify({'success': False, 'message': f"File '{doc.file_name}' not found on server"}), 404
 
-    return send_file(file_path, as_attachment=True, download_name=doc.file_name)
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=doc.file_name,
+        mimetype='application/octet-stream'
+    )
 
 @documents_bp.route('/<int:id>', methods=['DELETE'])
 @token_required

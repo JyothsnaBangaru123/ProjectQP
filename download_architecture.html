@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QP Management System - Architecture & Workflow Diagrams</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --accent-purple: #7c3aed;
+      --accent-emerald: #059669;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      max-width: 900px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 15.5px;
+      line-height: 1.5;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 25px;
+      background: #e2e8f0;
+      padding: 6px;
+      border-radius: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tab-btn {
+      padding: 10px 18px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .view-section {
+      width: 100%;
+      max-width: 1200px;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .view-section.active {
+      display: flex;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      border: 1px solid var(--border);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-lime { background: #ecfccb; color: #3f6212; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #ede9fe; color: #5b21b6; }
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 8px 0 4px 0;
+      color: var(--text-main);
+    }
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      margin: 0;
+      max-width: 800px;
+      line-height: 1.6;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13.5px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      box-shadow: none;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: translateY(-2px);
+    }
+    .preview-wrapper {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      text-align: center;
+    }
+    img.diagram-preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      background: white;
+    }
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .highlight-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    .highlight-box h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .highlight-box p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Question Paper Generation & Evaluation System</h1>
+    <p class="subtitle">Architecture & Workflow Diagrams Tailored Exactly to Your Guide's Requirements</p>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('pipeline-ref')">
+      ⭐ Guide Reference Architecture
+    </button>
+    <button class="tab-btn" onclick="switchTab('pipeline-annotated')">
+      🔍 Annotated Pipeline (ProjectQP)
+    </button>
+    <button class="tab-btn" onclick="switchTab('flowchart')">
+      🔄 Role-Based Workflow Flowchart
+    </button>
+    <button class="tab-btn" onclick="switchTab('multitier')">
+      🏗️ Multi-Tier Architecture
+    </button>
+  </div>
+
+  <!-- SECTION 1: QUESTION PAPER GENERATOR ARCHITECTURE -->
+  <div id="section-pipeline-ref" class="view-section active">
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <span class="badge badge-lime">⭐ Project Architecture (Input Processing Pipeline)</span>
+          <h2 class="card-title">Question Paper Generator — Architecture Pipeline</h2>
+          <p class="card-desc">
+            Complete architecture showing input processing: 
+            <strong>START/ INPUT ACADEMIC DATA &rarr; DOCUMENT EXTRACTION &amp; PARSING &rarr; RAG RETRIEVAL &amp; CONTEXT MATCHING &rarr; SYLLABUS KNOWLEDGE BASE &rarr; BLUEPRINT &amp; CONSTRAINTS VIEWER &rarr; AI SYNTHESIS &amp; OPTIMIZATION &rarr; DECISION &rarr; QP VERSIONS &amp; ARCHIVES &rarr; ASSESSMENT REPORTS</strong>.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="Question_Paper_Generator_Architecture.png" download="Question_Paper_Generator_Architecture.png" class="btn">
+            ⬇️ Download PNG (Ultra-HD)
+          </a>
+          <a href="Question_Paper_Generator_Architecture.jpg" download="Question_Paper_Generator_Architecture.jpg" class="btn btn-secondary">
+            ⬇️ Download JPG
+          </a>
+          <a href="Question_Paper_Generator_Architecture.svg" download="Question_Paper_Generator_Architecture.svg" class="btn btn-secondary">
+            ⬇️ Download SVG
+          </a>
+        </div>
+      </div>
+
+      <div class="preview-wrapper">
+        <a href="Question_Paper_Generator_Architecture.png" target="_blank" title="Click to view full resolution">
+          <img src="Question_Paper_Generator_Architecture.png" alt="Question Paper Generator Architecture Pipeline" class="diagram-preview">
+        </a>
+      </div>
+
+      <div class="highlights-grid">
+        <div class="highlight-box">
+          <h4>📥 Input Ingestion & Extraction</h4>
+          <p>Syllabus files and blueprint targets parsed by PyMuPDF text sanitizer and module chunker.</p>
+        </div>
+        <div class="highlight-box">
+          <h4>🔍 RAG Context & AI Synthesis</h4>
+          <p>rag_service.py semantic retrieval + Constraint Solver (Bloom's/Difficulty) + Google Gemini LLM synthesis.</p>
+        </div>
+        <div class="highlight-box">
+          <h4>📊 Approval, FIFO Evaluation & Reports</h4>
+          <p>Validated 10-char JNTU student marks recorded via FIFO storage, producing print-ready PDF papers and scorecards.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: ANNOTATED PIPELINE (PROJECTQP) -->
+  <div id="section-pipeline-annotated" class="view-section">
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <span class="badge badge-purple">ProjectQP Technical Annotations</span>
+          <h2 class="card-title">Input Processing Pipeline with Technical Subtitles</h2>
+          <p class="card-desc">
+            Same reference layout, but includes explicit subtitles mapping each card to your project components (PyMuPDF Ingestion, Semantic RAG Vector Retrieval, Bloom's Constraint Optimizer, Gemini LLM Synthesis, and FIFO Student Evaluation).
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="QP_Architecture_Pipeline_Annotated.png" download="QP_Architecture_Pipeline_Annotated.png" class="btn">
+            ⬇️ Download PNG (Ultra-HD)
+          </a>
+          <a href="QP_Architecture_Pipeline_Annotated.jpg" download="QP_Architecture_Pipeline_Annotated.jpg" class="btn btn-secondary">
+            ⬇️ Download JPG
+          </a>
+          <a href="QP_Architecture_Pipeline_Annotated.svg" download="QP_Architecture_Pipeline_Annotated.svg" class="btn btn-secondary">
+            ⬇️ Download SVG
+          </a>
+        </div>
+      </div>
+
+      <div class="preview-wrapper">
+        <a href="QP_Architecture_Pipeline_Annotated.png" target="_blank" title="Click to view full resolution">
+          <img src="QP_Architecture_Pipeline_Annotated.png" alt="QP Architecture Pipeline Annotated" class="diagram-preview">
+        </a>
+      </div>
+
+      <div class="highlights-grid">
+        <div class="highlight-box">
+          <h4>⚙️ Ingestion & RAG</h4>
+          <p>Documents processed by PyMuPDF text sanitizer and chunker, embedded into semantic vectors for Top-K syllabus retrieval.</p>
+        </div>
+        <div class="highlight-box">
+          <h4>🤖 AI & Constraints</h4>
+          <p>Multi-constraint solver ensures Bloom's taxonomy & difficulty targets, synthesized via Google Gemini LLM.</p>
+        </div>
+        <div class="highlight-box">
+          <h4>📝 FIFO Student Grading</h4>
+          <p>Validated 10-char JNTU numbers and 0.5 step marks submitted directly to PostgreSQL in strict FIFO order.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: ROLE-BASED WORKFLOW FLOWCHART -->
+  <div id="section-flowchart" class="view-section">
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <span class="badge badge-blue">Role-Based Workflow Flowchart</span>
+          <h2 class="card-title">Complete Role-Based Workflow Flowchart (Admin, Faculty, HOD)</h2>
+          <p class="card-desc">
+            Incorporates all Admin features (Programs, Branches, Regulations, Courses, Mappings, Addons, Archives), streamlines Faculty workflow without "Extract & Save Content", and strictly routes all roles through a single unified convergence arrow into Logout / End.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="QP_Role_Based_Workflow.png" download="QP_Role_Based_Workflow.png" class="btn">
+            ⬇️ Download PNG (Ultra-HD)
+          </a>
+          <a href="QP_Role_Based_Workflow.jpg" download="QP_Role_Based_Workflow.jpg" class="btn btn-secondary">
+            ⬇️ Download JPG
+          </a>
+          <a href="QP_Role_Based_Workflow.svg" download="QP_Role_Based_Workflow.svg" class="btn btn-secondary">
+            ⬇️ Download SVG
+          </a>
+        </div>
+      </div>
+
+      <div class="preview-wrapper">
+        <a href="QP_Role_Based_Workflow.png" target="_blank" title="Click to view full resolution">
+          <img src="QP_Role_Based_Workflow.png" alt="QP Role-Based Workflow Flowchart" class="diagram-preview">
+        </a>
+      </div>
+
+      <div class="highlights-grid">
+        <div class="highlight-box">
+          <h4>🛡️ Complete Admin Module</h4>
+          <p>User & Role RBAC, Academic Catalog (Programs, Branches, Regulations, Courses), Curricular Mappings (PB, BC, Faculty), Addons (Bloom's Taxonomy, Question Levels), and Course Archives.</p>
+        </div>
+        <div class="highlight-box">
+          <h4>👩‍🏫 Streamlined Faculty Flow</h4>
+          <p>View Assigned Courses &rarr; Upload & Parse Syllabus &rarr; Student Marks Entry (10-char JNTU validation, 0.5 step marks) &rarr; Submit & Store in FIFO sequence (Removed extract & save content).</p>
+        </div>
+        <div class="highlight-box">
+          <h4>🎯 Single Logout / End Input Arrow</h4>
+          <p>The completion pathways from Admin, Faculty, and HOD join onto a unified horizontal bus line, terminating into the Logout / End terminal node with exactly <strong>one single arrow</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: MULTI-TIER ARCHITECTURE -->
+  <div id="section-multitier" class="view-section">
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <span class="badge badge-purple">5-Tier Comprehensive Architecture</span>
+          <h2 class="card-title">Full Multi-Tier System Architecture</h2>
+          <p class="card-desc">
+            Detailed 5-tier technical architecture diagram showing Client SPA, Flask Gateway, Document Ingestion, Semantic RAG Engine, Gemini LLM Synthesis, PostgreSQL Storage, and PDF Outputs.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="QP_Management_System_Architecture.png" download="QP_Management_System_Architecture.png" class="btn">
+            ⬇️ Download PNG (Ultra-HD)
+          </a>
+          <a href="QP_Management_System_Architecture.jpg" download="QP_Management_System_Architecture.jpg" class="btn btn-secondary">
+            ⬇️ Download JPG
+          </a>
+          <a href="QP_Management_System_Architecture.svg" download="QP_Management_System_Architecture.svg" class="btn btn-secondary">
+            ⬇️ Download SVG
+          </a>
+        </div>
+      </div>
+
+      <div class="preview-wrapper">
+        <a href="QP_Management_System_Architecture.png" target="_blank" title="Click to view full resolution">
+          <img src="QP_Management_System_Architecture.png" alt="QP Management System Architecture" class="diagram-preview">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      const sections = {
+        'pipeline-ref': document.getElementById('section-pipeline-ref'),
+        'pipeline-annotated': document.getElementById('section-pipeline-annotated'),
+        'flowchart': document.getElementById('section-flowchart'),
+        'multitier': document.getElementById('section-multitier')
+      };
+      const buttons = document.querySelectorAll('.tab-btn');
+
+      Object.values(sections).forEach(s => s.classList.remove('active'));
+      buttons.forEach(b => b.classList.remove('active'));
+
+      if (sections[tab]) {
+        sections[tab].classList.add('active');
+      }
+
+      if (tab === 'pipeline-ref') buttons[0].classList.add('active');
+      else if (tab === 'pipeline-annotated') buttons[1].classList.add('active');
+      else if (tab === 'flowchart') buttons[2].classList.add('active');
+      else if (tab === 'multitier') buttons[3].classList.add('active');
+    }
+  </script>
+</body>
+</html>

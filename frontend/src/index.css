@@ -1258,13 +1258,14 @@ select.form-control option {
 
   /* Target the printable paper sheet directly */
   .printable-paper-sheet,
-  #printable-question-paper {
+  #printable-question-paper,
+  .academic-qp-sheet {
     display: block !important;
     position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 8mm 12mm !important;
+    padding: 6mm 10mm !important;
     background: #ffffff !important;
     color: #000000 !important;
     box-shadow: none !important;
@@ -1274,19 +1275,31 @@ select.form-control option {
     overflow: visible !important;
   }
 
-  .printable-paper-sheet * {
+  .printable-paper-sheet *,
+  .academic-qp-sheet * {
     color: #000000 !important;
     text-shadow: none !important;
     max-height: none !important;
   }
 
-  /* Screen editing textareas hidden, full clean text rendered */
+  .academic-qp-sheet table,
+  .academic-qp-sheet th,
+  .academic-qp-sheet td {
+    border-color: #000000 !important;
+  }
+
+  .academic-qp-sheet tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Screen editing textareas and selects hidden, full clean text rendered */
   .screen-only-textarea {
     display: none !important;
   }
 
   .print-only-text {
-    display: block !important;
+    display: inline !important;
     color: #000000 !important;
   }
 

@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="1000" height="1100" style="background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrowhead Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 8 L 8.5 0 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-left" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 8 1.5 L 0 5 L 8 8.5 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- ========================================== -->
+  <!-- 1. TOP HEADER BANNER                       -->
+  <!-- ========================================== -->
+  <g transform="translate(200, 32)">
+    <rect x="0" y="0" width="600" height="66" rx="14" fill="#eef9e8" stroke="#bef264" stroke-width="1.8"/>
+    
+    <!-- Left Leaf Icon -->
+    <g transform="translate(22, 15)">
+      <path d="M16 3C11 3 5 8 5 18C12 18 20 16 23 11C24 9 24 6 23 4C21 3 19 3 16 3Z" fill="#65a30d"/>
+      <path d="M12 21C12 15 15 11 20 8" stroke="#365314" stroke-width="2" stroke-linecap="round"/>
+      <path d="M7 16C4 16 1 13 1 8C5 8 9 9 11 12" fill="#84cc16"/>
+    </g>
+
+    <!-- Center Titles -->
+    <text x="300" y="28" text-anchor="middle" font-size="18.5" font-weight="800" fill="#1e3a8a" letter-spacing="0.5">QP - SAKTI Sahayak</text>
+    <text x="300" y="48" text-anchor="middle" font-size="12" font-weight="600" fill="#16a34a">Automated RAG & Multi-Constraint AI Pipeline for Question Paper Generation</text>
+
+    <!-- Right Leaf Icon -->
+    <g transform="translate(544, 15)">
+      <path d="M8 3C13 3 19 8 19 18C12 18 4 16 1 11C0 9 0 6 1 4C3 3 5 3 8 3Z" fill="#65a30d"/>
+      <path d="M12 21C12 15 9 11 4 8" stroke="#365314" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 16C20 16 23 13 23 8C19 8 15 9 13 12" fill="#84cc16"/>
+    </g>
+  </g>
+
+  <!-- Arrow down from Header to Step 1 -->
+  <line x1="500" y1="98" x2="500" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 2. STEP 1: START                           -->
+  <!-- ========================================== -->
+  <g transform="translate(320, 125)">
+    <rect x="0" y="0" width="360" height="56" rx="14" fill="#dcfce7" stroke="#bbf7d0" stroke-width="1.2"/>
+    <!-- Lightbulb Icon -->
+    <g transform="translate(18, 11)">
+      <path d="M14 3C9.5 3 6 6.5 6 11C6 13.8 7.4 16.2 9.5 17.6V20C9.5 20.6 10 21 10.5 21H17.5C18 21 18.5 20.6 18.5 20V17.6C20.6 16.2 22 13.8 22 11C22 6.5 18.5 3 14 3Z" fill="#eab308"/>
+      <path d="M10 24H18" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <!-- Label -->
+    <text x="195" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">START/ INPUT ACADEMIC DATA</text>
+    <text x="195" y="43" text-anchor="middle" font-size="10.5" font-weight="600" fill="#047857">Syllabus Documents, Regulation, Blueprint & JNTU Marks</text>
+  </g>
+
+  <!-- Arrow down to Step 2 -->
+  <line x1="500" y1="181" x2="500" y2="206" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 3. STEP 2: DEVELOPMENT                     -->
+  <!-- ========================================== -->
+  <g transform="translate(320, 208)">
+    <rect x="0" y="0" width="360" height="56" rx="14" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.2"/>
+    <!-- Gear Icon -->
+    <g transform="translate(18, 11)">
+      <circle cx="14" cy="14" r="6" fill="#4338ca"/>
+      <path d="M14 4V7M14 21V24M4 14H7M21 14H24M7 7L9.2 9.2M18.8 18.8L21 21M7 21L9.2 18.8M18.8 9.2L21 7" stroke="#4338ca" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <!-- Label -->
+    <text x="195" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">DEVELOPMENT/ INGESTION</text>
+    <text x="195" y="43" text-anchor="middle" font-size="10.5" font-weight="600" fill="#3730a3">PyMuPDF Extraction & Module Chunking</text>
+  </g>
+
+  <!-- Arrow down to Step 3 -->
+  <line x1="500" y1="264" x2="500" y2="289" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 4. STEP 3: RESEARCH                        -->
+  <!-- ========================================== -->
+  <g transform="translate(320, 291)">
+    <rect x="0" y="0" width="360" height="56" rx="14" fill="#fce7f3" stroke="#fbcfe8" stroke-width="1.2"/>
+    <!-- Search Magnifying Glass Icon -->
+    <g transform="translate(20, 12)">
+      <circle cx="12" cy="12" r="7.5" fill="none" stroke="#be185d" stroke-width="2.8"/>
+      <line x1="17.5" y1="17.5" x2="25" y2="25" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <!-- Label -->
+    <text x="195" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">RESEARCH/ RAG RETRIEVAL</text>
+    <text x="195" y="43" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9d174d">Semantic Vector Indexing & Top-K Context Retrieval</text>
+  </g>
+
+  <!-- Arrow down to Step 4 -->
+  <line x1="500" y1="347" x2="500" y2="372" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 5. STEP 4: SOURCES                         -->
+  <!-- ========================================== -->
+  <g transform="translate(320, 374)">
+    <rect x="0" y="0" width="360" height="56" rx="14" fill="#fef3c7" stroke="#fde68a" stroke-width="1.2"/>
+    <!-- Database Icon -->
+    <g transform="translate(20, 12)">
+      <ellipse cx="13" cy="6" rx="9" ry="3.5" fill="#b45309"/>
+      <path d="M4 6V13C4 15 8 16.5 13 16.5C18 16.5 22 15 22 13V6" fill="none" stroke="#b45309" stroke-width="2"/>
+      <path d="M4 12V19C4 21 8 22.5 13 22.5C18 22.5 22 21 22 19V12" fill="none" stroke="#b45309" stroke-width="2"/>
+    </g>
+    <!-- Label -->
+    <text x="195" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">SOURCES/ KNOWLEDGE BASE</text>
+    <text x="195" y="43" text-anchor="middle" font-size="10.5" font-weight="600" fill="#92400e">Curriculum Units & Course Outcomes Knowledge Base</text>
+  </g>
+
+  <!-- Arrow down to Step 5 -->
+  <line x1="500" y1="430" x2="500" y2="455" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 6. STEP 5: SOURCE/ DOCUMENT VIEWER         -->
+  <!-- ========================================== -->
+  <g transform="translate(320, 457)">
+    <rect x="0" y="0" width="360" height="56" rx="14" fill="#ccfbf1" stroke="#99f6e4" stroke-width="1.2"/>
+    <!-- Document Icon -->
+    <g transform="translate(20, 12)">
+      <rect x="5" y="3" width="16" height="22" rx="2" fill="#0d9488"/>
+      <line x1="9" y1="8" x2="17" y2="8" stroke="#ffffff" stroke-width="1.6"/>
+      <line x1="9" y1="13" x2="17" y2="13" stroke="#ffffff" stroke-width="1.6"/>
+      <line x1="9" y1="18" x2="14" y2="18" stroke="#ffffff" stroke-width="1.6"/>
+    </g>
+    <!-- Label -->
+    <text x="195" y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">SOURCE/ DOCUMENT VIEWER</text>
+    <text x="195" y="43" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f766e">Blueprint Sections, Choices & Weightage Distribution</text>
+  </g>
+
+  <!-- Arrow down to Analysis Container -->
+  <line x1="500" y1="513" x2="500" y2="538" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 7. ANALYSIS CONTAINER (Double Sub-box)     -->
+  <!-- ========================================== -->
+  <g transform="translate(275, 540)">
+    <!-- Coral outer container box -->
+    <rect x="0" y="0" width="450" height="92" rx="16" fill="#fee2e2" stroke="#fecaca" stroke-width="1.5"/>
+    
+    <!-- Top Header of Analysis -->
+    <g transform="translate(178, 10)">
+      <circle cx="11" cy="11" r="10" fill="#ef4444"/>
+      <path d="M6 14L9 11L12 13L16 8" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="26" y="16" font-size="14" font-weight="800" fill="#1e3a8a" letter-spacing="0.5">ANALYSIS</text>
+    </g>
+
+    <!-- Branching lines inside Analysis box -->
+    <path d="M 175 20 L 115 20 L 115 36" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arrow-down)"/>
+    <path d="M 275 20 L 335 20 L 335 36" fill="none" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arrow-down)"/>
+
+    <!-- Sub-Box 1: Left -->
+    <g transform="translate(20, 38)">
+      <rect x="0" y="0" width="190" height="42" rx="10" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.2"/>
+      <text x="95" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">CONSTRAINT OPTIMIZER</text>
+      <text x="95" y="34" text-anchor="middle" font-size="9" font-weight="600" fill="#3730a3">Bloom's & Difficulty Distribution</text>
+    </g>
+
+    <!-- Sub-Box 2: Right -->
+    <g transform="translate(240, 38)">
+      <rect x="0" y="0" width="190" height="42" rx="10" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.2"/>
+      <text x="95" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">GEMINI LLM SYNTHESIS</text>
+      <text x="95" y="34" text-anchor="middle" font-size="9" font-weight="600" fill="#3730a3">Prompt Engineering & Question Generation</text>
+    </g>
+  </g>
+
+  <!-- Arrow down from Analysis to Decision -->
+  <line x1="500" y1="632" x2="500" y2="657" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 8. DECISION DIAMOND                        -->
+  <!-- ========================================== -->
+  <g transform="translate(500, 682)">
+    <polygon points="0,-25 70,0 0,25 -70,0" fill="#fef08a" stroke="#fde047" stroke-width="1.5"/>
+    <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">DECISION</text>
+  </g>
+
+  <!-- Horizontal branch arrows out of Decision Diamond -->
+  <line x1="430" y1="682" x2="350" y2="682" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="570" y1="682" x2="650" y2="682" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ========================================== -->
+  <!-- 9. LEFT BRANCH                             -->
+  <!-- ========================================== -->
+  <!-- L1: RESEARCH_MORE -->
+  <g transform="translate(160, 660)">
+    <rect x="0" y="0" width="180" height="44" rx="12" fill="#cffafe" stroke="#a5f3fc" stroke-width="1.2"/>
+    <g transform="translate(12, 11)">
+      <circle cx="9" cy="9" r="6.5" fill="none" stroke="#0891b2" stroke-width="2.4"/>
+      <line x1="14" y1="14" x2="19" y2="19" stroke="#0891b2" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <text x="100" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">RESEARCH_MORE</text>
+    <text x="100" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#0e7490">Refine Blueprint Parameters</text>
+  </g>
+
+  <!-- Arrow L1 to L2 -->
+  <line x1="250" y1="704" x2="250" y2="724" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- L2: RESEARCH -->
+  <g transform="translate(160, 726)">
+    <rect x="0" y="0" width="180" height="44" rx="12" fill="#dcfce7" stroke="#bbf7d0" stroke-width="1.2"/>
+    <g transform="translate(14, 11)">
+      <rect x="3" y="2" width="13" height="17" rx="2" fill="#16a34a"/>
+      <line x1="6" y1="6" x2="13" y2="6" stroke="#ffffff" stroke-width="1.4"/>
+      <line x1="6" y1="10" x2="13" y2="10" stroke="#ffffff" stroke-width="1.4"/>
+      <line x1="6" y1="14" x2="10" y2="14" stroke="#ffffff" stroke-width="1.4"/>
+    </g>
+    <text x="100" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">RESEARCH</text>
+    <text x="100" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#15803d">Prompt & Criteria Re-Evaluation</text>
+  </g>
+
+  <!-- Arrow L2 to L3 -->
+  <line x1="250" y1="770" x2="250" y2="790" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- L3: SOURCES -->
+  <g transform="translate(160, 792)">
+    <rect x="0" y="0" width="180" height="44" rx="12" fill="#fef3c7" stroke="#fde68a" stroke-width="1.2"/>
+    <g transform="translate(14, 11)">
+      <ellipse cx="10" cy="5" rx="7" ry="2.8" fill="#d97706"/>
+      <path d="M3 5V10C3 11.5 6 12.8 10 12.8C14 12.8 17 11.5 17 10V5" fill="none" stroke="#d97706" stroke-width="1.6"/>
+      <path d="M3 10V15C3 16.5 6 17.8 10 17.8C14 17.8 17 16.5 17 15V10" fill="none" stroke="#d97706" stroke-width="1.6"/>
+    </g>
+    <text x="100" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">SOURCES</text>
+    <text x="100" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#b45309">Knowledge Base Re-Indexing</text>
+  </g>
+
+  <!-- Left Branch Convergence Line into VERSIONS -->
+  <path d="M 250 836 L 250 862 L 390 862" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+
+  <!-- ========================================== -->
+  <!-- 10. RIGHT BRANCH                            -->
+  <!-- ========================================== -->
+  <!-- R1: IMPROVE INNOVATIONS -->
+  <g transform="translate(660, 660)">
+    <rect x="0" y="0" width="190" height="44" rx="12" fill="#ffe4e6" stroke="#fecdd3" stroke-width="1.2"/>
+    <g transform="translate(12, 10)">
+      <path d="M12 3C8.5 3 6 5.5 6 9C6 11 7 12.8 8.5 13.8V15.5C8.5 16 9 16.5 9.5 16.5H14.5C15 16.5 15.5 16 15.5 15.5V13.8C17 12.8 18 11 18 9C18 5.5 15.5 3 12 3Z" fill="#e11d48"/>
+      <path d="M9.5 18H14.5" stroke="#be123c" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <text x="105" y="22" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1e3a8a">IMPROVE INNOVATIONS</text>
+    <text x="105" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#be123c">Approve Generated Question Paper</text>
+  </g>
+
+  <!-- Arrow R1 to R2 -->
+  <line x1="755" y1="704" x2="755" y2="724" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- R2: V2/V3 -->
+  <g transform="translate(660, 726)">
+    <rect x="0" y="0" width="190" height="44" rx="12" fill="#f3e8ff" stroke="#e9d5ff" stroke-width="1.2"/>
+    <circle cx="22" cy="22" r="7.5" fill="none" stroke="#9333ea" stroke-width="2.4"/>
+    <text x="105" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">V2/V3</text>
+    <text x="105" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#7e22ce">Print-Ready PDF Generation</text>
+  </g>
+
+  <!-- Arrow R2 to R3 -->
+  <line x1="755" y1="770" x2="755" y2="790" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- R3: RE-ANALYZE -->
+  <g transform="translate(660, 792)">
+    <rect x="0" y="0" width="190" height="44" rx="12" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.2"/>
+    <circle cx="22" cy="22" r="7.5" fill="none" stroke="#4f46e5" stroke-width="2.4"/>
+    <text x="105" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1e3a8a">RE-ANALYZE</text>
+    <text x="105" y="35" text-anchor="middle" font-size="9" font-weight="600" fill="#4338ca">Student Marks Evaluation (FIFO)</text>
+  </g>
+
+  <!-- Right Branch Convergence Line into VERSIONS -->
+  <path d="M 755 836 L 755 862 L 610 862" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+
+  <!-- ========================================== -->
+  <!-- 11. STEP 8: VERSIONS                       -->
+  <!-- ========================================== -->
+  <g transform="translate(400, 838)">
+    <rect x="0" y="0" width="200" height="48" rx="14" fill="#ccfbf1" stroke="#99f6e4" stroke-width="1.2"/>
+    <!-- Document Icon -->
+    <g transform="translate(16, 11)">
+      <rect x="3" y="2" width="14" height="20" rx="2" fill="#0d9488"/>
+      <line x1="7" y1="7" x2="14" y2="7" stroke="#ffffff" stroke-width="1.5"/>
+      <line x1="7" y1="11" x2="14" y2="11" stroke="#ffffff" stroke-width="1.5"/>
+      <line x1="7" y1="15" x2="11" y2="15" stroke="#ffffff" stroke-width="1.5"/>
+    </g>
+    <text x="110" y="23" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">VERSIONS</text>
+    <text x="110" y="37" text-anchor="middle" font-size="9" font-weight="600" fill="#0f766e">Question Paper DB Archive</text>
+  </g>
+
+  <!-- Arrow down from VERSIONS to REPORTS -->
+  <line x1="500" y1="886" x2="500" y2="906" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+  <!-- ========================================== -->
+  <!-- 12. STEP 9: REPORTS                        -->
+  <!-- ========================================== -->
+  <g transform="translate(400, 908)">
+    <rect x="0" y="0" width="200" height="48" rx="14" fill="#cffafe" stroke="#a5f3fc" stroke-width="1.2"/>
+    <!-- Document Icon -->
+    <g transform="translate(16, 11)">
+      <rect x="3" y="2" width="14" height="20" rx="2" fill="#0284c7"/>
+      <line x1="7" y1="7" x2="14" y2="7" stroke="#ffffff" stroke-width="1.5"/>
+      <line x1="7" y1="11" x2="14" y2="11" stroke="#ffffff" stroke-width="1.5"/>
+      <line x1="7" y1="15" x2="11" y2="15" stroke="#ffffff" stroke-width="1.5"/>
+    </g>
+    <text x="110" y="23" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a" letter-spacing="0.4">REPORTS</text>
+    <text x="110" y="37" text-anchor="middle" font-size="9" font-weight="600" fill="#0369a1">Evaluation Analytics & Scorecards</text>
+  </g>
+
+</svg>

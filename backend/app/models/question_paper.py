@@ -22,10 +22,18 @@ class QuestionPaper(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.Integer, default=1)
 
+    # Security & Password Protection fields
+    is_password_protected = db.Column(db.Boolean, default=False)
+    original_pdf_path = db.Column(db.String(500), nullable=True)
+    protected_pdf_path = db.Column(db.String(500), nullable=True)
+    protected_at = db.Column(db.DateTime, nullable=True)
+    protected_by_id = db.Column(db.Integer, nullable=True)
+    protected_by_name = db.Column(db.String(255), nullable=True)
+
     branch = db.relationship('Branch', backref=db.backref('question_papers', lazy=True), foreign_keys=[branch_id])
     course = db.relationship('Course', backref=db.backref('question_papers', lazy=True), foreign_keys=[course_id])
 
-    def to_dict(self):
+    def to_dict(self, user_id=None):
         content = {}
         if self.generated_content:
             try:
@@ -39,6 +47,16 @@ class QuestionPaper(db.Model):
                 schema_obj = json.loads(self.paper_schema)
             except Exception:
                 schema_obj = {}
+
+        shared_count = 0
+        is_shared_with_me = False
+        try:
+            if hasattr(self, 'shared_recipients') and self.shared_recipients:
+                shared_count = len(self.shared_recipients)
+                if user_id:
+                    is_shared_with_me = any(r.faculty_user_id == user_id for r in self.shared_recipients)
+        except Exception:
+            shared_count = 0
 
         return {
             'id': self.id,
@@ -58,5 +76,10 @@ class QuestionPaper(db.Model):
             'paper_schema': schema_obj,
             'generated_content': content,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
-            'status': self.status
+            'status': self.status,
+            'is_password_protected': bool(self.is_password_protected),
+            'protected_at': self.protected_at.strftime('%Y-%m-%d %H:%M:%S') if self.protected_at else None,
+            'protected_by_name': self.protected_by_name,
+            'shared_count': shared_count,
+            'is_shared_with_me': is_shared_with_me
         }

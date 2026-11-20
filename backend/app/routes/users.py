@@ -30,6 +30,40 @@ def enrich_user_dict(u):
             d['role_name'] = role.role_name
     return d
 
+@users_bp.route('/available', methods=['GET'])
+@users_bp.route('/faculty/available', methods=['GET'])
+@token_required
+def get_available_faculty():
+    """
+    Returns the list of registered Faculty members available for selection by an authorized HOD.
+    Excludes Admin and HOD accounts.
+    """
+    try:
+        faculty_role = Role.query.filter(Role.role_name.ilike('faculty')).first()
+        faculty_role_id = faculty_role.id if faculty_role else 2
+
+        faculty_users = User.query.filter(
+            (User.user_type == faculty_role_id),
+            (User.status == True)
+        ).order_by(User.user_name.asc()).all()
+
+        data = []
+        for u in faculty_users:
+            branch = Branch.query.get(u.branch_id) if u.branch_id else None
+            data.append({
+                'id': u.id,
+                'user_name': u.user_name,
+                'email': u.email,
+                'per_no': u.per_no,
+                'honorific': u.honorific,
+                'branch_id': u.branch_id,
+                'branch_name': branch.branch_name if branch else 'General'
+            })
+
+        return jsonify({'success': True, 'data': data})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @users_bp.route('', methods=['GET'])
 @token_required
 def get_users():
@@ -106,19 +140,26 @@ def create_user():
         role_name = role_record.role_name if role_record else None
         branch_name = branch_record.branch_name if branch_record else None
 
-        send_credentials_email(
+        email_result = send_credentials_email(
             user_data=enrich_user_dict(user),
             raw_password=raw_password,
             role_name=role_name,
             branch_name=branch_name,
-            is_update=False
+            is_update=False,
+            sync=True
         )
         
+        email_sent = email_result.get('success', False)
+        if email_sent:
+            msg = f"User {user.user_name} created and login credentials emailed to {user.email}."
+        else:
+            msg = f"User {user.user_name} created, but email could not be delivered: {email_result.get('message', 'Check email configuration')}."
+
         return jsonify({
             'success': True,
-            'message': f"Email sent successfully to {user.user_name} ({user.email})",
+            'message': msg,
             'data': enrich_user_dict(user),
-            'email_sent': True
+            'email_sent': email_sent
         }), 201
     except Exception as e:
         db.session.rollback()
@@ -189,15 +230,20 @@ def update_user(id):
         if password_changed and new_password:
             role_record = Role.query.get(user.user_type) if user.user_type else None
             branch_record = Branch.query.get(user.branch_id) if user.branch_id else None
-            send_credentials_email(
+            email_result = send_credentials_email(
                 user_data=enrich_user_dict(user),
                 raw_password=new_password,
                 role_name=role_record.role_name if role_record else None,
                 branch_name=branch_record.branch_name if branch_record else None,
-                is_update=True
+                is_update=True,
+                sync=True
             )
-        
-        msg = f"User updated and new credentials sent to {user.user_name} ({user.email})" if password_changed else f"User {user.user_name} updated successfully"
+            if email_result.get('success'):
+                msg = f"User updated and new credentials sent to {user.user_name} ({user.email})"
+            else:
+                msg = f"User updated, but email could not be delivered: {email_result.get('message', 'Delivery failed')}"
+        else:
+            msg = f"User {user.user_name} updated successfully"
 
         return jsonify({
             'success': True,

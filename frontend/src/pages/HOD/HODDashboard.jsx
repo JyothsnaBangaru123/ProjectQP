@@ -90,7 +90,21 @@ const HODDashboard = () => {
               Welcome HOD {user?.user_name || ''}. Review course materials uploaded by your department faculty and generate question papers.
             </p>
           </div>
-          <div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => navigate('/faculty/co-evaluation')}
+              className="btn btn-secondary"
+              style={{
+                fontSize: '0.95rem',
+                padding: '12px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <span>🎯</span>
+              <span>CO Attainment Analytics</span>
+            </button>
             <button
               onClick={() => navigate('/hod/generate')}
               className="btn btn-primary"

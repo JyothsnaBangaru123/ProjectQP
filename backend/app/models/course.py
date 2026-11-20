@@ -23,6 +23,13 @@ class Course(db.Model):
         from app.models.pbmapping import PBMapping
         return PBMapping.query.get(self.pb_id)
 
+    @property
+    def regulation(self):
+        if not self.reg_id:
+            return None
+        from app.models.regulation import Regulation
+        return Regulation.query.get(self.reg_id)
+
     def to_dict(self):
         return {
             'id': self.id,

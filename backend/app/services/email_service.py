@@ -19,7 +19,7 @@ def get_email_config():
 
     return {
         'smtp_server': os.environ.get('SMTP_SERVER', 'smtp.gmail.com'),
-        'smtp_port': int(os.environ.get('SMTP_PORT', 587)),
+        'smtp_port': int(os.environ.get('SMTP_PORT', 465)),
         'smtp_username': os.environ.get('SMTP_USERNAME', ''),
         'smtp_password': os.environ.get('SMTP_PASSWORD', ''),
         'smtp_use_tls': os.environ.get('SMTP_USE_TLS', 'True').lower() in ('true', '1', 't'),
@@ -277,14 +277,20 @@ def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, def
 
         if smtp_username and smtp_password:
             logger.info(f"Connecting to SMTP server {smtp_server}:{smtp_port} for {to_email}...")
-            if smtp_port == 465:
-                server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15)
-            else:
-                server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
-                if use_tls:
-                    server.starttls()
+            server = None
+            try:
+                if smtp_port == 465 or 'gmail' in smtp_server.lower():
+                    server = smtplib.SMTP_SSL(smtp_server, 465, timeout=20)
+                else:
+                    server = smtplib.SMTP(smtp_server, smtp_port, timeout=20)
+                    if use_tls:
+                        server.starttls()
+            except Exception as conn_err:
+                logger.warning(f"Initial connection to {smtp_server}:{smtp_port} failed ({conn_err}). Falling back to SSL port 465...")
+                server = smtplib.SMTP_SSL(smtp_server, 465, timeout=20)
+
             server.login(smtp_username, smtp_password)
-            server.sendmail(actual_sender, [to_email], msg.as_string().encode('ascii', errors='surrogateescape').decode('ascii'))
+            server.send_message(msg)
             server.quit()
             logger.info(f"[SUCCESS] Credentials email successfully delivered to {to_email}")
             print(f"\n[EMAIL DISPATCH] [SUCCESS] Successfully delivered real email via SMTP to: {to_email}\n")
@@ -305,6 +311,11 @@ def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, def
 
     except smtplib.SMTPAuthenticationError:
         err = "Email authentication failed. Invalid SMTP username or app password in configuration."
+        logger.error(f"Failed to send email to {to_email}: {err}")
+        print(f"\n[EMAIL ERROR] {err}\n")
+        return False, err
+    except smtplib.SMTPServerDisconnected:
+        err = "SMTP connection closed by server. For Gmail, this happens when Google rejects the credentials (invalid or expired 16-character App Password). Please generate a new App Password at myaccount.google.com/apppasswords."
         logger.error(f"Failed to send email to {to_email}: {err}")
         print(f"\n[EMAIL ERROR] {err}\n")
         return False, err
@@ -332,6 +343,8 @@ def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, def
         err_msg = str(e)
         if 'getaddrinfo failed' in err_msg.lower():
             err = "Could not reach email server. Please check your internet connection."
+        elif 'connection unexpectedly closed' in err_msg.lower():
+            err = "SMTP connection closed by Gmail. Google rejected your App Password (535 Bad Credentials). Please generate a new 16-character App Password at myaccount.google.com/apppasswords."
         else:
             err = f"Email delivery failed: {err_msg}"
         logger.error(f"Failed to send email to {to_email}: {err}")
@@ -420,4 +433,233 @@ GMR Institute of Technology (Autonomous)
         'simulated': not is_configured,
         'message': f"Email sent successfully to {user_name} ({to_email})"
     }
+
+def generate_qp_password_html(recipient_name, paper_title, course_name, password, login_url):
+    name_display = recipient_name or "Faculty Member"
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ProjectQP – Password for Finalized Question Paper</title>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                background-color: #0b1120;
+                color: #e2e8f0;
+                margin: 0;
+                padding: 24px 12px;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: #151d30;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+                overflow: hidden;
+            }}
+            .header {{
+                background: linear-gradient(135deg, #0284c7 0%, #3b82f6 50%, #6366f1 100%);
+                padding: 28px 24px;
+                text-align: center;
+                color: #ffffff;
+            }}
+            .header h1 {{
+                margin: 0;
+                font-size: 22px;
+                font-weight: 800;
+                letter-spacing: -0.3px;
+            }}
+            .header p {{
+                margin: 6px 0 0 0;
+                font-size: 13px;
+                opacity: 0.92;
+            }}
+            .body {{
+                padding: 28px 24px;
+            }}
+            .greeting {{
+                font-size: 16px;
+                font-weight: 600;
+                color: #ffffff;
+                margin-bottom: 12px;
+            }}
+            .lead-text {{
+                font-size: 14px;
+                line-height: 1.6;
+                color: #cbd5e1;
+                margin-bottom: 20px;
+            }}
+            .paper-card {{
+                background: #0f172a;
+                border: 1px solid rgba(56, 189, 248, 0.25);
+                border-radius: 10px;
+                padding: 18px;
+                margin-bottom: 22px;
+            }}
+            .paper-row {{
+                margin-bottom: 8px;
+                font-size: 13.5px;
+            }}
+            .paper-row:last-child {{
+                margin-bottom: 0;
+            }}
+            .paper-label {{
+                color: #94a3b8;
+                font-weight: 500;
+            }}
+            .paper-val {{
+                color: #f8fafc;
+                font-weight: 700;
+            }}
+            .password-section {{
+                background: #1e1b4b;
+                border: 1px dashed #818cf8;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                margin-bottom: 22px;
+            }}
+            .password-label {{
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #a5b4fc;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }}
+            .password-code {{
+                display: inline-block;
+                background: #0f172a;
+                border: 1px solid #6366f1;
+                border-radius: 6px;
+                padding: 10px 20px;
+                color: #38bdf8;
+                font-size: 18px;
+                font-weight: 800;
+                letter-spacing: 2px;
+                font-family: 'Courier New', Courier, monospace;
+            }}
+            .security-box {{
+                background: rgba(239, 68, 68, 0.1);
+                border-left: 4px solid #ef4444;
+                padding: 12px 16px;
+                border-radius: 4px;
+                font-size: 12.5px;
+                color: #fca5a5;
+                line-height: 1.5;
+                margin-bottom: 24px;
+            }}
+            .footer {{
+                text-align: center;
+                padding: 18px 24px;
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                font-size: 12px;
+                color: #64748b;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>GMR Institute of Technology</h1>
+                <p>ProjectQP – Automated Examination Management System</p>
+            </div>
+            <div class="body">
+                <div class="greeting">Dear Faculty Member,</div>
+                <div class="lead-text">
+                    The Head of Department has authorized you to access a finalized examination question paper.
+                </div>
+                
+                <div class="paper-card">
+                    <div class="paper-row">
+                        <span class="paper-label">Question Paper:</span> 
+                        <span class="paper-val">{paper_title}</span>
+                    </div>
+                    <div class="paper-row">
+                        <span class="paper-label">Course:</span> 
+                        <span class="paper-val">{course_name}</span>
+                    </div>
+                </div>
+
+                <div class="password-section">
+                    <div class="password-label">The password required to open the protected PDF is:</div>
+                    <div class="password-code">{password}</div>
+                </div>
+
+                <div class="security-box">
+                    <strong>🔒 Confidentiality Notice:</strong> Please keep this password confidential and do not share it with unauthorized individuals.
+                </div>
+
+                <div style="text-align: center; margin: 24px 0 16px 0;">
+                    <a href="{login_url}" style="background: linear-gradient(135deg, #0284c7 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block;">
+                        🚀 Log in to ProjectQP to Download
+                    </a>
+                </div>
+            </div>
+            <div class="footer">
+                Regards,<br>
+                <strong>ProjectQP – Examination Management System</strong><br>
+                GMR Institute of Technology (Autonomous)
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html_content
+
+def send_qp_password_email(to_email, recipient_name, paper_title, course_name, password):
+    """
+    Dispatches the PDF password to an individual authorized faculty recipient.
+    Strictly follows Section 6 requirements:
+    - Never CCs other recipients.
+    - Uses exact subject and body template.
+    - Never logs passwords.
+    - Returns (success: bool, error_message: str | None).
+    """
+    config = get_email_config()
+    is_configured = is_smtp_configured()
+
+    subject = "ProjectQP – Password for Finalized Question Paper"
+
+    plain_body = f"""Dear Faculty Member,
+
+The Head of Department has authorized you to access a finalized examination question paper.
+
+Question Paper: {paper_title}
+
+Course: {course_name}
+
+The password required to open the protected PDF is:
+
+{password}
+
+Please keep this password confidential and do not share it with unauthorized individuals.
+
+Regards,
+ProjectQP – Examination Management System
+"""
+
+    html_body = generate_qp_password_html(
+        recipient_name=recipient_name,
+        paper_title=paper_title,
+        course_name=course_name,
+        password=password,
+        login_url=config.get('login_url', 'http://localhost:5173/login')
+    )
+
+    success, err_msg = execute_smtp_send(
+        to_email=to_email,
+        subject=subject,
+        html_body=html_body,
+        plain_body=plain_body,
+        sender_name=config.get('sender_name', 'GMRIT QP Management System'),
+        default_sender=config.get('default_sender', 'noreply@gmrit.edu.in'),
+        config=config
+    )
+
+    return success, err_msg
+
 

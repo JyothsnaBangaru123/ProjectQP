@@ -15,14 +15,18 @@ def create_app(config_class=Config):
     from app.routes import (
         auth_bp, users_bp, login_users_bp, programs_bp, branches_bp,
         regulations_bp, courses_bp, blooms_bp, qlevel_bp, mappings_bp,
-        pbmappings_bp, bcmappings_bp, roles_bp, documents_bp, qp_generator_bp
+        pbmappings_bp, bcmappings_bp, roles_bp, documents_bp, qp_generator_bp,
+        students_bp
     )
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(users_bp, url_prefix='/api/faculty', name='faculty_users')
     app.register_blueprint(roles_bp, url_prefix='/api/roles')
     app.register_blueprint(documents_bp, url_prefix='/api/documents')
     app.register_blueprint(qp_generator_bp, url_prefix='/api/qp')
+    app.register_blueprint(qp_generator_bp, url_prefix='/api/question-papers', name='qp_generator_alias')
+    app.register_blueprint(students_bp, url_prefix='/api/students')
     app.register_blueprint(login_users_bp, url_prefix='/api/login-users')
     app.register_blueprint(programs_bp, url_prefix='/api/programs')
     app.register_blueprint(branches_bp, url_prefix='/api/branches')

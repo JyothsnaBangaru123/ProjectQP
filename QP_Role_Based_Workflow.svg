@@ -1,0 +1,411 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1450" width="1600" height="1450">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    
+    <linearGradient id="startGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+
+    <linearGradient id="loginGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+
+    <linearGradient id="decisionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    
+    <linearGradient id="adminGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    
+    <linearGradient id="facultyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <linearGradient id="hodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    
+    <linearGradient id="endGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow-lg" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrow-dark" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="1450" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Header Box -->
+  <rect x="60" y="30" width="1480" height="90" rx="16" fill="#ffffff" filter="url(#shadow)" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="800" y="72" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="800" fill="#0f172a">
+    Question Paper Management System - Role-Based Workflow
+  </text>
+  <text x="800" y="100" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#64748b">
+    Comprehensive Execution Flow for Admin, Faculty, and Head of Department (HOD)
+  </text>
+
+  <!-- ==================== FLOWCHART TOP NODES ==================== -->
+  
+  <!-- START NODE -->
+  <g transform="translate(800, 155)">
+    <rect x="-100" y="0" width="200" height="48" rx="24" fill="url(#startGrad)" filter="url(#shadow)"/>
+    <text x="0" y="30" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#ffffff">
+      ▶ Start
+    </text>
+  </g>
+
+  <!-- Arrow Start -> Login -->
+  <line x1="800" y1="203" x2="800" y2="235" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- LOGIN NODE -->
+  <g transform="translate(800, 235)">
+    <rect x="-140" y="0" width="280" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#shadow)"/>
+    <text x="0" y="32" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#0f172a">
+      User Login (Email &amp; Password)
+    </text>
+  </g>
+
+  <!-- Arrow Login -> Decision -->
+  <line x1="800" y1="287" x2="800" y2="320" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- DECISION NODE (User Role?) -->
+  <g transform="translate(800, 370)">
+    <!-- Diamond -->
+    <polygon points="0,-48 115,0 0,48 -115,0" fill="#ffffff" stroke="#f59e0b" stroke-width="3" filter="url(#shadow)"/>
+    <text x="0" y="-4" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="800" fill="#b45309">
+      User Role?
+    </text>
+    <text x="0" y="16" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#64748b">
+      (Role-Based Access)
+    </text>
+  </g>
+
+  <!-- Role Branch Labels -->
+  <!-- Left to Admin -->
+  <path d="M 685 370 L 290 370 L 290 435" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <rect x="360" y="348" width="130" height="26" rx="6" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="425" y="365" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#1e40af">
+    If Role = Admin
+  </text>
+
+  <!-- Center to Faculty -->
+  <line x1="800" y1="418" x2="800" y2="455" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <rect x="735" y="422" width="130" height="26" rx="6" fill="#f3e8ff" stroke="#d8b4fe" stroke-width="1"/>
+  <text x="800" y="440" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#6b21a8">
+    If Role = Faculty
+  </text>
+
+  <!-- Right to HOD -->
+  <path d="M 915 370 L 1310 370 L 1310 435" fill="none" stroke="#059669" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <rect x="1110" y="348" width="130" height="26" rx="6" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="1175" y="365" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#065f46">
+    If Role = HOD
+  </text>
+
+
+  <!-- ==================== COLUMN HEADERS ==================== -->
+  <!-- Admin Header Banner -->
+  <g transform="translate(290, 470)">
+    <rect x="-190" y="0" width="380" height="42" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#1e40af">
+      🛡️ ADMIN MODULE &amp; FEATURES
+    </text>
+  </g>
+
+  <!-- Faculty Header Banner -->
+  <g transform="translate(800, 470)">
+    <rect x="-190" y="0" width="380" height="42" rx="8" fill="#faf5ff" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#6b21a8">
+      👨‍🏫 FACULTY MODULE &amp; FEATURES
+    </text>
+  </g>
+
+  <!-- HOD Header Banner -->
+  <g transform="translate(1310, 470)">
+    <rect x="-190" y="0" width="380" height="42" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#065f46">
+      🎓 HOD MODULE &amp; FEATURES
+    </text>
+  </g>
+
+
+  <!-- ==================== ADMIN FLOW (All Admin Features) ==================== -->
+  <!-- Admin Step 1: Manage Users & Roles -->
+  <line x1="290" y1="512" x2="290" y2="540" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <g transform="translate(290, 540)">
+    <rect x="-180" y="0" width="360" height="70" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">
+      👥 Manage Users &amp; Roles
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Add / Edit System Users &amp; Role Permissions
+    </text>
+  </g>
+
+  <!-- Admin Step 2: Academic Catalog -->
+  <line x1="290" y1="610" x2="290" y2="640" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <g transform="translate(290, 640)">
+    <rect x="-180" y="0" width="360" height="82" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">
+      📚 Academic Setup: Courses &amp; Programs
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Add / Edit Programs &amp; Engineering Branches
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Add Regulations &amp; Courses (with Codes &amp; Credits)
+    </text>
+  </g>
+
+  <!-- Admin Step 3: Curricular Mappings -->
+  <line x1="290" y1="722" x2="290" y2="752" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <g transform="translate(290, 752)">
+    <rect x="-180" y="0" width="360" height="82" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">
+      🔗 Curricular Mappings
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Program-to-Branch &amp; Branch-to-Course Mappings
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Map Courses to Faculty Evaluators
+    </text>
+  </g>
+
+  <!-- Admin Step 4: Pedagogical Addons -->
+  <line x1="290" y1="834" x2="290" y2="864" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <g transform="translate(290, 864)">
+    <rect x="-180" y="0" width="360" height="70" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">
+      🧩 Manage Addons &amp; Frameworks
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Configure Bloom's Taxonomy &amp; Question Levels
+    </text>
+  </g>
+
+  <!-- Admin Step 5: Archives & System DB -->
+  <line x1="290" y1="934" x2="290" y2="964" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <g transform="translate(290, 964)">
+    <rect x="-180" y="0" width="360" height="70" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">
+      💾 View QP Archives &amp; Student DB
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Maintain System Records &amp; Student Evaluations
+    </text>
+  </g>
+
+
+  <!-- ==================== FACULTY FLOW (No Extract/Save) ==================== -->
+  <!-- Faculty Step 1: View Courses -->
+  <line x1="800" y1="512" x2="800" y2="560" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <g transform="translate(800, 560)">
+    <rect x="-180" y="0" width="360" height="76" rx="10" fill="#ffffff" stroke="#d8b4fe" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="30" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#581c87">
+      📖 View Assigned Courses &amp; Catalog
+    </text>
+    <text x="0" y="52" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Review mapped curriculum &amp; syllabus requirements
+    </text>
+  </g>
+
+  <!-- Faculty Step 2: Upload Documents -->
+  <line x1="800" y1="636" x2="800" y2="690" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <g transform="translate(800, 690)">
+    <rect x="-180" y="0" width="360" height="86" rx="10" fill="#ffffff" stroke="#d8b4fe" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#581c87">
+      📤 Upload Syllabus &amp; Course Materials
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Attach syllabus documents (PDF / Word)
+    </text>
+    <text x="0" y="66" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Stored securely in database for AI generation
+    </text>
+  </g>
+
+  <!-- Faculty Step 3: Student Marks Evaluation -->
+  <line x1="800" y1="776" x2="800" y2="830" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <g transform="translate(800, 830)">
+    <rect x="-180" y="0" width="360" height="96" rx="10" fill="#ffffff" stroke="#d8b4fe" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#581c87">
+      📝 Student Marks Entry &amp; Evaluation
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Enter 10-digit JNTU Roll Number
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Grade question-by-question (0, 0.5, 1, 1.5...)
+    </text>
+    <text x="0" y="82" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      • Submit evaluation record to database (FIFO)
+    </text>
+  </g>
+
+
+  <!-- ==================== HOD FLOW ==================== -->
+  <!-- HOD Step 1: Select Course & Blueprint -->
+  <line x1="1310" y1="512" x2="1310" y2="540" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <g transform="translate(1310, 540)">
+    <rect x="-180" y="0" width="360" height="70" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#064e3b">
+      📋 Select Course &amp; Blueprint Pattern
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Choose regulation, course, semester &amp; total marks
+    </text>
+  </g>
+
+  <!-- HOD Step 2: Configure Sections & Choices -->
+  <line x1="1310" y1="610" x2="1310" y2="640" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <g transform="translate(1310, 640)">
+    <rect x="-180" y="0" width="360" height="78" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#064e3b">
+      📐 Define Sections &amp; Internal Choices
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Set questions per section, marks per question,
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      and internal choice OR pairs (e.g. Q1 or Q2)
+    </text>
+  </g>
+
+  <!-- HOD Step 3: Bloom's & Difficulty -->
+  <line x1="1310" y1="718" x2="1310" y2="748" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <g transform="translate(1310, 748)">
+    <rect x="-180" y="0" width="360" height="78" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#064e3b">
+      ⚖️ Balance Bloom's Taxonomy &amp; Difficulty
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Allocate cognitive percentages (L1-L6)
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      and balance Easy, Medium, Hard question mix
+    </text>
+  </g>
+
+  <!-- HOD Step 4: AI Question Paper Generation -->
+  <line x1="1310" y1="826" x2="1310" y2="856" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <g transform="translate(1310, 856)">
+    <rect x="-180" y="0" width="360" height="78" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="26" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#064e3b">
+      ⚡ AI-Powered Generation (RAG + LLM)
+    </text>
+    <text x="0" y="46" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Context retrieval against syllabus chunks &amp;
+    </text>
+    <text x="0" y="64" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      synthesis via Google Gemini API
+    </text>
+  </g>
+
+  <!-- HOD Step 5: Review & Export -->
+  <line x1="1310" y1="934" x2="1310" y2="964" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <g transform="translate(1310, 964)">
+    <rect x="-180" y="0" width="360" height="70" rx="10" fill="#ffffff" stroke="#6ee7b7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="0" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#064e3b">
+      📄 Review, Edit &amp; Export to PDF
+    </text>
+    <text x="0" y="48" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#475569">
+      Print final question paper &amp; save to archives
+    </text>
+  </g>
+
+
+  <!-- ==================== CONVERGENCE TO SINGLE ARROW LOGOUT ==================== -->
+  <!-- 
+    CRITICAL REQUIREMENT:
+    "and the logout/end button has to be connected to one arrow marks only like join the admin and hod arrows to the user role and give that arrow as single input to the logout/end"
+  -->
+  
+  <!-- Line down from Admin bottom (Y = 1034) to Convergence Line Y = 1130 -->
+  <line x1="290" y1="1034" x2="290" y2="1130" stroke="#3b82f6" stroke-width="2.5"/>
+
+  <!-- Line down from Faculty bottom (Y = 926) to Convergence Line Y = 1130 -->
+  <line x1="800" y1="926" x2="800" y2="1130" stroke="#8b5cf6" stroke-width="2.5"/>
+
+  <!-- Line down from HOD bottom (Y = 1034) to Convergence Line Y = 1130 -->
+  <line x1="1310" y1="1034" x2="1310" y2="1130" stroke="#10b981" stroke-width="2.5"/>
+
+  <!-- Unified Horizontal Convergence Bus Line (Joining Admin, Faculty, HOD paths) -->
+  <line x1="290" y1="1130" x2="1310" y2="1130" stroke="#475569" stroke-width="3"/>
+  
+  <!-- Join junction dots for professional presentation -->
+  <circle cx="290" cy="1130" r="4.5" fill="#3b82f6"/>
+  <circle cx="800" cy="1130" r="4.5" fill="#8b5cf6"/>
+  <circle cx="1310" cy="1130" r="4.5" fill="#10b981"/>
+
+  <!-- Label indicating convergence -->
+  <rect x="710" y="1140" width="180" height="24" rx="5" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="800" y="1156" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#475569">
+    Session Complete / Exit
+  </text>
+
+  <!-- THE SINGLE ARROW INTO LOGOUT / END -->
+  <line x1="800" y1="1165" x2="800" y2="1225" stroke="#dc2626" stroke-width="3.5" marker-end="url(#arrow-red)"/>
+
+  <!-- LOGOUT / END NODE -->
+  <g transform="translate(800, 1225)">
+    <rect x="-120" y="0" width="240" height="54" rx="27" fill="url(#endGrad)" filter="url(#shadow-lg)"/>
+    <text x="0" y="34" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#ffffff">
+      ⏹ Logout / End
+    </text>
+  </g>
+
+  <!-- Legend & Guide Note -->
+  <g transform="translate(800, 1330)">
+    <rect x="-450" y="0" width="900" height="65" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+    <circle cx="-380" cy="32" r="8" fill="#3b82f6"/>
+    <text x="-360" y="37" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">Admin Features</text>
+    
+    <circle cx="-120" cy="32" r="8" fill="#8b5cf6"/>
+    <text x="-100" y="37" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">Faculty Features</text>
+    
+    <circle cx="140" cy="32" r="8" fill="#10b981"/>
+    <text x="160" y="37" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">HOD Features</text>
+    
+    <circle cx="360" cy="32" r="8" fill="#dc2626"/>
+    <text x="380" y="37" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">Unified Exit</text>
+  </g>
+</svg>

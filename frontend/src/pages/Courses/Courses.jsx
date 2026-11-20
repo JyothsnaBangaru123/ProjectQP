@@ -142,7 +142,22 @@ const Courses = () => {
   const handleOpenEdit = (item) => {
     setEditingItem(item);
     const code = item.course_code || '';
-    const suffix = code.length >= 2 ? code.slice(-2) : code;
+    
+    // Resolve prefix to extract custom suffix without truncating
+    const selectedReg = regulations.find(r => r.id === parseInt(item.reg_id));
+    const regPart = getRegulationNumber(selectedReg ? selectedReg.reg : '');
+    const selectedPb = pbMappings.find(p => p.id === parseInt(item.pb_id));
+    const deptPart = getDepartmentCode(selectedPb ? selectedPb.branch_name : '');
+    const semPart = item.sem ? String(item.sem) : '';
+    const itemPrefix = `${regPart}${deptPart}${semPart}`;
+    
+    let suffix = code;
+    if (itemPrefix && code.startsWith(itemPrefix)) {
+      suffix = code.slice(itemPrefix.length);
+    } else if (code.length > 5) {
+      suffix = code.slice(5);
+    }
+
     setFormData({
       course_code: code,
       course_code_suffix: suffix,
@@ -258,17 +273,16 @@ const Courses = () => {
 
     const semPart = formData.sem ? String(formData.sem) : '';
     const prefix = `${regPart}${deptPart}${semPart}`;
-    const fullCode = `${prefix}${formData.course_code_suffix || ''}`;
+    const cleanSuffix = (formData.course_code_suffix || '').trim();
+    const fullCode = `${prefix}${cleanSuffix}`;
 
     // Front-end validations
     const errors = {};
     
-    if (!formData.course_code_suffix) {
-      errors.course_code = 'Manual suffix (last 2 digits) is required';
-    } else if (formData.course_code_suffix.length !== 2) {
-      errors.course_code = 'Suffix must be exactly 2 characters';
-    } else if (fullCode.length !== 7 || !regPart || !deptPart || !semPart) {
-      errors.course_code = 'Course code must be exactly 7 characters (Regulation, Branch, and Semester must be selected)';
+    if (!cleanSuffix) {
+      errors.course_code = 'Course code suffix is required';
+    } else if (!regPart || !deptPart || !semPart) {
+      errors.course_code = 'Regulation, Branch, and Semester must be selected to generate the course code prefix';
     }
 
     const nameErr = validateRequired(formData.course_name, 'Course Name');
@@ -625,12 +639,10 @@ const Courses = () => {
                   name="course_code_suffix"
                   value={formData.course_code_suffix || ''}
                   onChange={(e) => {
-                    const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                    if (val.length <= 2) {
-                      setFormData(prev => ({ ...prev, course_code_suffix: val }));
-                    }
+                    const val = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '').toUpperCase();
+                    setFormData(prev => ({ ...prev, course_code_suffix: val }));
                   }}
-                  placeholder="02"
+                  placeholder="e.g. 01 or CS01"
                   className={`form-control ${formErrors.course_code ? 'is-invalid' : ''}`}
                   style={{
                     borderTopLeftRadius: 0,
@@ -640,7 +652,7 @@ const Courses = () => {
                   required
                 />
               </div>
-              {prefix && formData.course_code_suffix && formData.course_code_suffix.length === 2 && (
+              {prefix && formData.course_code_suffix && (
                 <div style={{ marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   Full Code: <strong style={{ color: 'var(--status-active, #10b981)' }}>{prefix}{formData.course_code_suffix}</strong>
                 </div>

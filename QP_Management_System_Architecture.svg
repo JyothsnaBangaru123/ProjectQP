@@ -1,0 +1,584 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1350" width="1920" height="1350">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgCanvas" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <linearGradient id="adminInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+
+    <linearGradient id="facultyInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="100%" stop-color="#f3e8ff"/>
+    </linearGradient>
+
+    <linearGradient id="hodInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfdf5"/>
+      <stop offset="100%" stop-color="#d1fae5"/>
+    </linearGradient>
+
+    <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <linearGradient id="apiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+
+    <linearGradient id="ragGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+
+    <linearGradient id="outputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+    <filter id="shadow-md" x="-5%" y="-5%" width="112%" height="112%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <filter id="shadow-lg" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arr-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+    </marker>
+    <marker id="arr-indigo" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#6366f1"/>
+    </marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+    <marker id="arr-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1920" height="1350" fill="#f8fafc"/>
+
+  <!-- Top Title Banner -->
+  <g transform="translate(60, 25)">
+    <rect width="1800" height="85" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow-md)"/>
+    <text x="900" y="44" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="800" fill="#0f172a">
+      Question Paper Management System - Detailed System Architecture
+    </text>
+    <text x="900" y="70" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#64748b">
+      End-to-End Processing Architecture: From Multi-Role Input Ingestion, RAG Semantic Extraction, to AI Synthesis &amp; Output
+    </text>
+  </g>
+
+
+  <!-- ==================== TIER 1: MULTI-ROLE INPUT INGESTION LAYER ==================== -->
+  <g transform="translate(60, 130)">
+    <!-- Container -->
+    <rect width="1800" height="200" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect width="1800" height="34" rx="14" fill="#f1f5f9"/>
+    <rect y="20" width="1800" height="14" fill="#f1f5f9"/>
+    <text x="24" y="23" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#334155" letter-spacing="1">
+      TIER 1: MULTI-ROLE INPUT INGESTION &amp; USER CONFIGURATION LAYER
+    </text>
+
+    <!-- Box 1: Admin Inputs -->
+    <g transform="translate(25, 45)">
+      <rect width="560" height="140" rx="10" fill="url(#adminInputGrad)" stroke="#93c5fd" stroke-width="1.5"/>
+      <rect x="14" y="12" width="140" height="24" rx="6" fill="#2563eb"/>
+      <text x="84" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        ADMIN INPUTS
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#1e3a8a">
+        • Academic Master Setup:
+      </text>
+      <text x="175" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Programs, Branches, Regulations, Courses Catalog
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#1e3a8a">
+        • Curricular Mappings:
+      </text>
+      <text x="155" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Program-Branch, Branch-Course, Faculty Allocation
+      </text>
+      <text x="16" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#1e3a8a">
+        • Pedagogical Addons:
+      </text>
+      <text x="160" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Bloom's Taxonomy Levels (L1-L6) &amp; Difficulty Levels
+      </text>
+      <text x="16" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#1e3a8a">
+        • Security &amp; Users:
+      </text>
+      <text x="135" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        User Roles (Admin, HOD, Faculty), Password Policies
+      </text>
+    </g>
+
+    <!-- Box 2: Faculty Inputs -->
+    <g transform="translate(620, 45)">
+      <rect width="560" height="140" rx="10" fill="url(#facultyInputGrad)" stroke="#d8b4fe" stroke-width="1.5"/>
+      <rect x="14" y="12" width="145" height="24" rx="6" fill="#7c3aed"/>
+      <text x="86" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        FACULTY INPUTS
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#581c87">
+        • Syllabus Ingestion:
+      </text>
+      <text x="145" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        PDF / DOCX Course Curriculum &amp; Study Materials
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#581c87">
+        • Course Assignment:
+      </text>
+      <text x="150" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Selection of mapped courses for evaluation
+      </text>
+      <text x="16" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#581c87">
+        • Student Evaluation Data:
+      </text>
+      <text x="185" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Exact 10-char JNTU Roll No (e.g. 20A91A0501)
+      </text>
+      <text x="16" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#581c87">
+        • Evaluation Grading:
+      </text>
+      <text x="155" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Step Marks (0, 0.5, 1, 1.5...) &amp; Faculty Feedback
+      </text>
+    </g>
+
+    <!-- Box 3: HOD Inputs -->
+    <g transform="translate(1215, 45)">
+      <rect width="560" height="140" rx="10" fill="url(#hodInputGrad)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <rect x="14" y="12" width="130" height="24" rx="6" fill="#059669"/>
+      <text x="79" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        HOD INPUTS
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#064e3b">
+        • Exam Blueprint Config:
+      </text>
+      <text x="165" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Exam Title, Regulation, Course Code, Max Marks
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#064e3b">
+        • Structural Pattern:
+      </text>
+      <text x="145" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Sections (A &amp; B), Compulsory vs Choice OR Pairs
+      </text>
+      <text x="16" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#064e3b">
+        • Bloom's Distribution:
+      </text>
+      <text x="165" y="100" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Percentage breakdown for L1 to L6 cognitive levels
+      </text>
+      <text x="16" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#064e3b">
+        • Difficulty Constraints:
+      </text>
+      <text x="165" y="122" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Easy (30%), Medium (50%), Hard (20%) Weightage
+      </text>
+    </g>
+  </g>
+
+  <!-- Connective Arrows from Tier 1 to Tier 2 -->
+  <line x1="305" y1="330" x2="305" y2="355" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+  <line x1="900" y1="330" x2="900" y2="355" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+  <line x1="1495" y1="330" x2="1495" y2="355" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr-green)"/>
+
+
+  <!-- ==================== TIER 2: PRESENTATION & GATEWAY LAYER ==================== -->
+  <g transform="translate(60, 360)">
+    <!-- Container -->
+    <rect width="1800" height="150" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect width="1800" height="34" rx="14" fill="#f1f5f9"/>
+    <rect y="20" width="1800" height="14" fill="#f1f5f9"/>
+    <text x="24" y="23" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#334155" letter-spacing="1">
+      TIER 2: CLIENT APPLICATION &amp; SECURE API GATEWAY LAYER
+    </text>
+
+    <!-- Sub-Box 1: React.js Client SPA -->
+    <g transform="translate(25, 45)">
+      <rect width="860" height="92" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="18" y="24" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#0f172a">
+        ⚛️ React.js + Vite Single Page Application (Client UI)
+      </text>
+      <text x="18" y="46" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Role-Based Views: Admin Dashboard, Faculty Content Portal, HOD Generation Studio
+      </text>
+      <text x="18" y="66" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Interactive Controllers: Dynamic Blueprint Customizer, Live Question-by-Question Grading Grid
+      </text>
+      <text x="18" y="84" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Client State: AuthContext, JWT Token Storage, Protected Routes Guard
+      </text>
+    </g>
+
+    <!-- Bi-directional arrow between Client and Flask API -->
+    <line x1="895" y1="91" x2="945" y2="91" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+    <text x="920" y="82" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#6366f1">REST / JSON</text>
+
+    <!-- Sub-Box 2: Flask REST API Gateway -->
+    <g transform="translate(955, 45)">
+      <rect width="820" height="92" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="18" y="24" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#0f172a">
+        🌶️ Flask REST API Gateway &amp; Middleware (backend/app/routes/)
+      </text>
+      <text x="18" y="46" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Security &amp; RBAC: JWT Verification (@token_required), Role Check (Admin/HOD/Faculty)
+      </text>
+      <text x="18" y="66" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Modular Blueprints: /api/courses, /api/documents, /api/qp_generator, /api/students, /api/mappings
+      </text>
+      <text x="18" y="84" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Payload Validators: JNTU Roll No Sanitize, Course Code Generator, Choice Structure Normalizer
+      </text>
+    </g>
+  </g>
+
+  <!-- Connective Arrow from Tier 2 to Tier 3 -->
+  <line x1="900" y1="510" x2="900" y2="540" stroke="#6366f1" stroke-width="3" marker-end="url(#arr-indigo)"/>
+  <rect x="800" y="515" width="200" height="22" rx="4" fill="#e0e7ff" stroke="#c7d2fe" stroke-width="1"/>
+  <text x="900" y="530" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#3730a3">
+    Dispatches to Processing Pipeline
+  </text>
+
+
+  <!-- ==================== TIER 3: INPUT PROCESSING PIPELINE (HOW INPUTS PROCESS) ==================== -->
+  <g transform="translate(60, 545)">
+    <!-- Container -->
+    <rect width="1800" height="340" rx="14" fill="#ffffff" stroke="#6366f1" stroke-width="2" filter="url(#shadow-md)"/>
+    <rect width="1800" height="36" rx="14" fill="#4338ca"/>
+    <rect y="20" width="1800" height="16" fill="#4338ca"/>
+    <text x="24" y="24" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#ffffff" letter-spacing="1">
+      TIER 3: CORE INPUT PROCESSING, RAG &amp; OPTIMIZATION PIPELINE (HOW INPUTS ARE PROCESSED)
+    </text>
+
+    <!-- Stage 3A: Ingestion & Document Processing -->
+    <g transform="translate(25, 50)">
+      <rect width="400" height="268" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+      <rect x="14" y="12" width="220" height="26" rx="6" fill="#0284c7"/>
+      <text x="124" y="29" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        STAGE 1: DOCUMENT PROCESSING
+      </text>
+      
+      <text x="16" y="58" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0369a1">
+        Document Ingestion (PyMuPDF)
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Ingests PDF / Word syllabus files
+      </text>
+      <text x="16" y="98" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Text sanitization &amp; whitespace removal
+      </text>
+      <text x="16" y="118" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Removes noise, headers, footers
+      </text>
+
+      <line x1="16" y1="135" x2="384" y2="135" stroke="#e2e8f0" stroke-width="1"/>
+
+      <text x="16" y="158" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#0369a1">
+        Curriculum Chunking Engine
+      </text>
+      <text x="16" y="178" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Semantic segmenter per Unit/Module
+      </text>
+      <text x="16" y="198" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Topic, keyword &amp; concept tags
+      </text>
+      <text x="16" y="218" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Course Outcome (CO1-CO5) alignment
+      </text>
+      <text x="16" y="245" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#0284c7">
+        Output: Structured Topic Text Chunks
+      </text>
+    </g>
+
+    <!-- Arrow 3A -> 3B -->
+    <line x1="425" y1="184" x2="465" y2="184" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+
+    <!-- Stage 3B: Semantic RAG & Vector Retrieval -->
+    <g transform="translate(470, 50)">
+      <rect width="400" height="268" rx="10" fill="url(#ragGrad)" stroke="#86efac" stroke-width="1.5"/>
+      <rect x="14" y="12" width="220" height="26" rx="6" fill="#15803d"/>
+      <text x="124" y="29" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        STAGE 2: SEMANTIC RAG ENGINE
+      </text>
+
+      <text x="16" y="58" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#14532d">
+        RAG Service (rag_service.py)
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Embeds curriculum text into vectors
+      </text>
+      <text x="16" y="98" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Stores vector indices mapped to Course ID
+      </text>
+      <text x="16" y="118" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Course Syllabus Context Pool
+      </text>
+
+      <line x1="16" y1="135" x2="384" y2="135" stroke="#bbf7d0" stroke-width="1"/>
+
+      <text x="16" y="158" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#14532d">
+        Context Retrieval &amp; Matching
+      </text>
+      <text x="16" y="178" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Matches HOD Blueprint queries
+      </text>
+      <text x="16" y="198" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Semantic similarity ranking
+      </text>
+      <text x="16" y="218" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Retrieves Top-K syllabus references
+      </text>
+      <text x="16" y="245" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#15803d">
+        Output: Context-Enriched Prompts
+      </text>
+    </g>
+
+    <!-- Arrow 3B -> 3C -->
+    <line x1="870" y1="184" x2="910" y2="184" stroke="#15803d" stroke-width="2.5" marker-end="url(#arr-green)"/>
+
+    <!-- Stage 3C: Optimization & AI Synthesis Engine -->
+    <g transform="translate(915, 50)">
+      <rect width="470" height="268" rx="10" fill="url(#aiGrad)" stroke="#fde047" stroke-width="1.5"/>
+      <rect x="14" y="12" width="260" height="26" rx="6" fill="#b45309"/>
+      <text x="144" y="29" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        STAGE 3: OPTIMIZATION &amp; AI SYNTHESIS
+      </text>
+
+      <text x="16" y="58" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#78350f">
+        Multi-Constraint Solver (optimization_module.py)
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Bloom's Taxonomy Balancing: L1 (Remember) to L6 (Create)
+      </text>
+      <text x="16" y="98" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Difficulty Balancing: Easy (30%), Medium (50%), Hard (20%)
+      </text>
+      <text x="16" y="118" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Pattern Enforcement: Section A (Mandatory), Section B (OR Choices)
+      </text>
+
+      <line x1="16" y1="135" x2="454" y2="135" stroke="#fef08a" stroke-width="1"/>
+
+      <text x="16" y="158" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#78350f">
+        Generative LLM Synthesis (llm_service.py)
+      </text>
+      <text x="16" y="178" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Injects context + constraints into Google Gemini Model
+      </text>
+      <text x="16" y="198" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Synthesizes unique questions with marking criteria
+      </text>
+      <text x="16" y="218" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Marks summation &amp; pattern validation (e.g. Exactly 70 Marks)
+      </text>
+      <text x="16" y="245" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#b45309">
+        Output: Verified Question Paper Schema &amp; Sections
+      </text>
+    </g>
+
+    <!-- Arrow 3C -> 3D -->
+    <line x1="1385" y1="184" x2="1415" y2="184" stroke="#b45309" stroke-width="2.5" marker-end="url(#arr-amber)"/>
+
+    <!-- Stage 3D: Student Evaluation & FIFO Processor -->
+    <g transform="translate(1420, 50)">
+      <rect width="355" height="268" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+      <rect x="14" y="12" width="220" height="26" rx="6" fill="#6b21a8"/>
+      <text x="124" y="29" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        STAGE 4: EVALUATION &amp; FIFO
+      </text>
+
+      <text x="16" y="58" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#581c87">
+        Evaluation Engine (students.py)
+      </text>
+      <text x="16" y="78" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • 10-char JNTU No validator
+      </text>
+      <text x="16" y="98" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Step marks (0, 0.5, 1, 1.5...)
+      </text>
+      <text x="16" y="118" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Total score &amp; percentage calc
+      </text>
+
+      <line x1="16" y1="135" x2="339" y2="135" stroke="#e2e8f0" stroke-width="1"/>
+
+      <text x="16" y="158" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#581c87">
+        FIFO Storage Queue
+      </text>
+      <text x="16" y="178" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • First In, First Out sequencing
+      </text>
+      <text x="16" y="198" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Query order: Student.id.asc()
+      </text>
+      <text x="16" y="218" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Latest record placed at last row
+      </text>
+      <text x="16" y="245" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#6b21a8">
+        Output: Processed Student Record
+      </text>
+    </g>
+  </g>
+
+  <!-- Connective Arrows from Tier 3 to Tier 4 -->
+  <line x1="1150" y1="885" x2="1150" y2="920" stroke="#4338ca" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+  <line x1="1600" y1="885" x2="1600" y2="920" stroke="#6b21a8" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+
+
+  <!-- ==================== TIER 4: PERSISTENCE & STORAGE LAYER ==================== -->
+  <g transform="translate(60, 925)">
+    <!-- Container -->
+    <rect width="1800" height="155" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    <rect width="1800" height="34" rx="14" fill="#f1f5f9"/>
+    <rect y="20" width="1800" height="14" fill="#f1f5f9"/>
+    <text x="24" y="23" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#334155" letter-spacing="1">
+      TIER 4: DATA PERSISTENCE &amp; STORAGE LAYER
+    </text>
+
+    <!-- PostgreSQL Database Box -->
+    <g transform="translate(25, 45)">
+      <rect width="1250" height="96" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="18" y="24" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#0f172a">
+        🐘 PostgreSQL Relational Database (SQLAlchemy ORM)
+      </text>
+      <text x="18" y="46" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Master Tables: Users, Roles, Programs, Branches, Regulations, Courses (with prefix + custom suffix), Mappings (PB, BC)
+      </text>
+      <text x="18" y="66" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • QP Tables: QuestionPaper (title, marks, sem, pattern_sections JSON, paper_schema JSON, generated_content)
+      </text>
+      <text x="18" y="86" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Evaluation Records: Student (jntu_no, course_code, evaluation_data JSON, marks, FIFO indexed by ID)
+      </text>
+    </g>
+
+    <!-- File System Storage Box -->
+    <g transform="translate(1300, 45)">
+      <rect width="475" height="96" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="18" y="24" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#0f172a">
+        📂 File System Storage (/backend/uploads)
+      </text>
+      <text x="18" y="46" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Raw Course Syllabus Documents (PDF, DOCX)
+      </text>
+      <text x="18" y="66" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Uploaded Material Attachments per Course
+      </text>
+      <text x="18" y="86" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Permanent Document Storage &amp; Hash Keys
+      </text>
+    </g>
+  </g>
+
+  <!-- Connective Arrow from Tier 4 to Tier 5 -->
+  <line x1="900" y1="1080" x2="900" y2="1115" stroke="#ea580c" stroke-width="3" marker-end="url(#arr-amber)"/>
+
+
+  <!-- ==================== TIER 5: OUTPUT & EXPORT LAYER ==================== -->
+  <g transform="translate(60, 1125)">
+    <!-- Container -->
+    <rect width="1800" height="195" rx="14" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" filter="url(#shadow-md)"/>
+    <rect width="1800" height="34" rx="14" fill="#ffedd5"/>
+    <rect y="20" width="1800" height="14" fill="#ffedd5"/>
+    <text x="24" y="23" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#c2410c" letter-spacing="1">
+      TIER 5: FINAL OUTPUTS &amp; DELIVERABLES LAYER
+    </text>
+
+    <!-- Output 1: Question Paper -->
+    <g transform="translate(25, 45)">
+      <rect width="560" height="135" rx="10" fill="url(#outputGrad)" stroke="#fdba74" stroke-width="1.5"/>
+      <rect x="14" y="12" width="220" height="24" rx="6" fill="#c2410c"/>
+      <text x="124" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        📄 QUESTION PAPER DELIVERABLES
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#9a3412">
+        • Print-Ready Formatted PDF Export:
+      </text>
+      <text x="16" y="76" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Standard university header, course code, time &amp; max marks
+      </text>
+      <text x="16" y="96" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Section-wise Layout with Internal Choices (OR Pairs)
+      </text>
+      <text x="16" y="116" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Balanced Cognitive Levels (Bloom's Taxonomy) &amp; Answer Keys
+      </text>
+    </g>
+
+    <!-- Output 2: Student Scorecards -->
+    <g transform="translate(620, 45)">
+      <rect width="560" height="135" rx="10" fill="url(#outputGrad)" stroke="#fdba74" stroke-width="1.5"/>
+      <rect x="14" y="12" width="225" height="24" rx="6" fill="#c2410c"/>
+      <text x="126" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        📊 STUDENT EVALUATION REPORTS
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#9a3412">
+        • Live Answer Evaluation Scorecard:
+      </text>
+      <text x="16" y="76" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Total marks scored, percentage, pass/distinction tier
+      </text>
+      <text x="16" y="96" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Question-by-Question Marks Breakdown &amp; Audit Trail
+      </text>
+      <text x="16" y="116" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        • Chronological FIFO Database Records Table with Edit &amp; Delete
+      </text>
+    </g>
+
+    <!-- Output 3: System Archives -->
+    <g transform="translate(1215, 45)">
+      <rect width="560" height="135" rx="10" fill="url(#outputGrad)" stroke="#fdba74" stroke-width="1.5"/>
+      <rect x="14" y="12" width="220" height="24" rx="6" fill="#c2410c"/>
+      <text x="124" y="28" text-anchor="middle" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff">
+        🗄️ ACADEMIC REPOSITORY
+      </text>
+      <text x="16" y="56" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#9a3412">
+        • Question Paper Archives:
+      </text>
+      <text x="16" y="76" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Course-wise QP repository searchable by year &amp; semester
+      </text>
+      <text x="16" y="96" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#9a3412">
+        • Course Syllabus Catalog:
+      </text>
+      <text x="16" y="116" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" fill="#334155">
+        Course materials, download links &amp; faculty assignment registry
+      </text>
+    </g>
+  </g>
+</svg>

@@ -198,7 +198,11 @@ const Users = () => {
       } else {
         const res = await userService.create(payload);
         if (res.success) {
-          showNotification(res.message || `Email sent successfully to ${payload.user_name} (${payload.email})`);
+          if (res.email_sent === false) {
+            showNotification(res.message, 'error');
+          } else {
+            showNotification(res.message || `User ${payload.user_name} created and credentials sent to ${payload.email}!`);
+          }
           loadData();
           setModalOpen(false);
         }

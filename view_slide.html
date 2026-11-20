@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technical Stack Presentation Slide - Ready to Copy & Download</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --primary: #38bdf8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      max-width: 900px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+    .btn-secondary:hover {
+      background: #334155;
+      transform: translateY(-2px);
+    }
+    .slide-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+      background: #0b1329;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.2);
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .slide-wrapper img, .slide-wrapper svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      background: #10b981;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Technical Stack & System Architecture Slide</h1>
+    <p>Presentation-ready 16:9 slide for Project Methodology Review (GMRIT / JNTU)</p>
+  </div>
+
+  <div class="actions-bar">
+    <a href="Technical_Stack_Presentation_Slide.jpg" download="Technical_Stack_Presentation_Slide.jpg" class="btn btn-primary">
+      ⬇️ Download JPG Slide
+    </a>
+    <a href="Technical_Stack_Slide.svg" download="Technical_Stack_Slide.svg" class="btn btn-secondary">
+      ⬇️ Download Vector SVG
+    </a>
+    <button class="btn btn-secondary" onclick="copyImageToClipboard()">
+      📋 Copy Image to Clipboard
+    </button>
+  </div>
+
+  <div class="slide-wrapper" id="slide-container">
+    <img id="slide-img" src="Technical_Stack_Presentation_Slide.jpg" alt="Technical Stack & System Architecture Slide" />
+  </div>
+
+  <div class="toast" id="toast">✅ Image copied to clipboard! You can now paste directly into PowerPoint (Ctrl + V).</div>
+
+  <script>
+    async function copyImageToClipboard() {
+      try {
+        const img = document.getElementById('slide-img');
+        const response = await fetch(img.src);
+        const blob = await response.blob();
+        
+        // Convert to png blob for standard clipboard support
+        const canvas = document.createElement('canvas');
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.src = img.src;
+        image.onload = async () => {
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(image, 0, 0);
+          canvas.toBlob(async (pngBlob) => {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': pngBlob })
+            ]);
+            showToast();
+          }, 'image/png');
+        };
+      } catch (err) {
+        alert('To copy: Right click on the slide image below and select "Copy Image", then paste directly into PowerPoint (Ctrl + V)!');
+      }
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+  </script>
+</body>
+</html>

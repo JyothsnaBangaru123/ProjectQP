@@ -13,3 +13,4 @@ from app.routes.bcmappings import bcmappings_bp
 from app.routes.roles import roles_bp
 from app.routes.documents import documents_bp
 from app.routes.qp_generator import qp_generator_bp
+from app.routes.students import students_bp

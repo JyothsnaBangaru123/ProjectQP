@@ -41,6 +41,8 @@ class CourseDocument(db.Model):
             'file_path': self.file_path,
             'has_extracted_text': bool(self.extracted_text),
             'text_length': len(self.extracted_text) if self.extracted_text else 0,
+            'extracted_text': self.extracted_text,
+            'extracted_text_preview': (self.extracted_text[:1000] + '...') if self.extracted_text and len(self.extracted_text) > 1000 else self.extracted_text,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
             'status': self.status
         }

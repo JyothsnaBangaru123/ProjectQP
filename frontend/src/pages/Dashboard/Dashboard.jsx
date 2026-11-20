@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { programService } from '../../services/programService';
 import { branchService } from '../../services/branchService';
 import { regulationService } from '../../services/regulationService';
@@ -9,6 +10,7 @@ import { mappingService } from '../../services/mappingService';
 import Loader from '../../components/common/Loader';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     programs: 0,
     branches: 0,
@@ -97,6 +99,23 @@ const Dashboard = () => {
         ))}
       </div>
       
+      <div className="glass-card" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '6px' }}>🎯 Course Outcome (CO) Attainment Analytics</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: 0 }}>
+            Inspect student evaluation metrics, NBA/NAAC attainment levels, and question-outcome distributions across all academic courses.
+          </p>
+        </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate('/faculty/co-evaluation')}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}
+        >
+          <span>🎯</span>
+          <span>View CO Analytics</span>
+        </button>
+      </div>
+
       <div className="glass-card" style={{ marginTop: '20px' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '12px' }}>Database Health Check</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
