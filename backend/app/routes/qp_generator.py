@@ -846,7 +846,6 @@ def protect_and_share_qp(id):
                 'recipients': delivery_results
             }
         }), 200
-        }), 200
 
     except Exception as e:
         db.session.rollback()
