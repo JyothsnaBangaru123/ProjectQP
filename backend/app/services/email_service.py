@@ -270,7 +270,7 @@ def send_via_https_api(to_email, subject, html_body, plain_body, sender_name, de
             actual_sender = config['smtp_username']
 
     # 1. Google Apps Script Webhook (Direct Gmail forwarding over HTTPS)
-    webhook_url = config.get('gmail_webhook_url')
+    webhook_url = (config.get('gmail_webhook_url') or '').strip().strip('"').strip("'")
     if webhook_url:
         try:
             logger.info(f"Connecting to Google Apps Script Webhook for {to_email}...")
@@ -289,7 +289,7 @@ def send_via_https_api(to_email, subject, html_body, plain_body, sender_name, de
             logger.warning(f"Google Webhook error: {e}")
 
     # 2. Brevo (Sendinblue) API
-    brevo_key = config.get('brevo_api_key')
+    brevo_key = (config.get('brevo_api_key') or '').strip().strip('"').strip("'")
     if brevo_key:
         try:
             logger.info(f"Connecting to Brevo HTTPS API for {to_email}...")
