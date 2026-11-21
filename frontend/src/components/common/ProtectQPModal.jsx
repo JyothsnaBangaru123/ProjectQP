@@ -513,6 +513,21 @@ const ProtectQPModal = ({
               </div>
             </div>
 
+            {resultData?.failed_deliveries > 0 && (
+              <div style={{
+                marginBottom: '16px',
+                padding: '10px 14px',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                borderRadius: '6px',
+                color: '#fca5a5',
+                fontSize: '0.85rem',
+                lineHeight: 1.4
+              }}>
+                <strong>⚠️ Notice:</strong> {resultData.recipients?.find(r => r.error)?.error || 'Email dispatch failed. Please verify email credentials or webhook.'}
+              </div>
+            )}
+
             <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-primary" onClick={onClose}>
                 Done
