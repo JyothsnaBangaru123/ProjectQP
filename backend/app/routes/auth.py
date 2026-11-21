@@ -258,3 +258,38 @@ def test_email():
         'has_brevo': bool(cfg.get('brevo_api_key')),
         'has_resend': bool(cfg.get('resend_api_key'))
     }), 200 if ok else 400
+
+@auth_bp.route('/webhook-debug', methods=['GET', 'POST'])
+def webhook_debug():
+    import requests
+    from app.services.email_service import get_email_config
+    cfg = get_email_config()
+    raw_url = cfg.get('gmail_webhook_url') or ''
+    clean_url = raw_url.strip().strip('"').strip("'")
+    if '/edit' in clean_url and '/exec' not in clean_url:
+        clean_url = clean_url.split('/edit')[0] + '/exec'
+    
+    debug_info = {
+        'url_set': bool(raw_url),
+        'url_len': len(raw_url),
+        'url_prefix': clean_url[:35] if clean_url else '',
+        'url_suffix': clean_url[-15:] if clean_url else '',
+        'has_exec': '/exec' in clean_url,
+        'has_macros': '/macros/s/' in clean_url
+    }
+    
+    if clean_url:
+        try:
+            r = requests.post(
+                clean_url,
+                json={'to': 'jyothsnabangaru4@gmail.com', 'subject': 'ProjectQP Webhook Debug', 'html': '<p>Debug probe</p>', 'text': 'Debug probe'},
+                headers={'Content-Type': 'application/json'},
+                timeout=12,
+                allow_redirects=True
+            )
+            debug_info['http_status'] = r.status_code
+            debug_info['response_text'] = r.text[:300]
+        except Exception as e:
+            debug_info['request_error'] = str(e)
+            
+    return jsonify(debug_info)
