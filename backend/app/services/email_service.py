@@ -25,7 +25,10 @@ def get_email_config():
         'smtp_use_tls': os.environ.get('SMTP_USE_TLS', 'True').lower() in ('true', '1', 't'),
         'default_sender': os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@gmrit.edu.in'),
         'sender_name': os.environ.get('MAIL_SENDER_NAME', 'GMRIT QP Management System'),
-        'login_url': os.environ.get('APP_LOGIN_URL', 'http://localhost:5173/login')
+        'login_url': os.environ.get('APP_LOGIN_URL', 'http://localhost:5173/login'),
+        'gmail_webhook_url': os.environ.get('GMAIL_WEBHOOK_URL', os.environ.get('EMAIL_WEBHOOK_URL', '')),
+        'brevo_api_key': os.environ.get('BREVO_API_KEY', ''),
+        'resend_api_key': os.environ.get('RESEND_API_KEY', '')
     }
 
 def generate_credentials_html(user_name, honorific, per_no, email, password, role_name, branch_name, login_url, is_update=False):
@@ -244,13 +247,120 @@ def generate_credentials_html(user_name, honorific, per_no, email, password, rol
 
 def is_smtp_configured():
     config = get_email_config()
-    return bool(config['smtp_username'] and config['smtp_password'])
+    return bool(
+        (config['smtp_username'] and config['smtp_password']) or
+        config.get('gmail_webhook_url') or
+        config.get('brevo_api_key') or
+        config.get('resend_api_key')
+    )
+
+def send_via_https_api(to_email, subject, html_body, plain_body, sender_name, default_sender, config):
+    """
+    Dispatches email via HTTPS (port 443) to bypass cloud firewall restrictions (such as Render Free Tier).
+    Supports:
+    1. Google Apps Script Webhook (GMAIL_WEBHOOK_URL)
+    2. Brevo REST API (BREVO_API_KEY)
+    3. Resend REST API (RESEND_API_KEY)
+    """
+    import requests
+
+    actual_sender = default_sender
+    if config.get('smtp_username') and '@' in config['smtp_username']:
+        if default_sender == 'noreply@gmrit.edu.in' or not default_sender:
+            actual_sender = config['smtp_username']
+
+    # 1. Google Apps Script Webhook (Direct Gmail forwarding over HTTPS)
+    webhook_url = config.get('gmail_webhook_url')
+    if webhook_url:
+        try:
+            logger.info(f"Connecting to Google Apps Script Webhook for {to_email}...")
+            resp = requests.post(
+                webhook_url,
+                json={'to': to_email, 'subject': subject, 'html': html_body, 'text': plain_body},
+                timeout=15
+            )
+            if resp.status_code in (200, 302):
+                logger.info(f"[SUCCESS] Email delivered via Google Apps Script Webhook to {to_email}")
+                print(f"\n[EMAIL DISPATCH] [SUCCESS] Delivered via Google Webhook to: {to_email}\n")
+                return True, None
+            else:
+                logger.warning(f"Google Webhook returned HTTP {resp.status_code}: {resp.text}")
+        except Exception as e:
+            logger.warning(f"Google Webhook error: {e}")
+
+    # 2. Brevo (Sendinblue) API
+    brevo_key = config.get('brevo_api_key')
+    if brevo_key:
+        try:
+            logger.info(f"Connecting to Brevo HTTPS API for {to_email}...")
+            resp = requests.post(
+                'https://api.brevo.com/v3/smtp/email',
+                headers={'api-key': brevo_key, 'Content-Type': 'application/json', 'Accept': 'application/json'},
+                json={
+                    'sender': {'name': sender_name, 'email': actual_sender or config.get('default_sender')},
+                    'to': [{'email': to_email}],
+                    'subject': subject,
+                    'htmlContent': html_body,
+                    'textContent': plain_body
+                },
+                timeout=15
+            )
+            if resp.status_code in (200, 201):
+                logger.info(f"[SUCCESS] Email delivered via Brevo to {to_email}")
+                print(f"\n[EMAIL DISPATCH] [SUCCESS] Delivered via Brevo to: {to_email}\n")
+                return True, None
+            else:
+                err_msg = f"Brevo API error ({resp.status_code}): {resp.text}"
+                logger.error(err_msg)
+                return False, err_msg
+        except Exception as e:
+            logger.error(f"Brevo API request failed: {e}")
+            return False, str(e)
+
+    # 3. Resend API
+    resend_key = config.get('resend_api_key')
+    if resend_key:
+        try:
+            logger.info(f"Connecting to Resend HTTPS API for {to_email}...")
+            resp = requests.post(
+                'https://api.resend.com/emails',
+                headers={'Authorization': f'Bearer {resend_key}', 'Content-Type': 'application/json'},
+                json={
+                    'from': f"{sender_name} <{actual_sender or config.get('default_sender')}>",
+                    'to': [to_email],
+                    'subject': subject,
+                    'html': html_body,
+                    'text': plain_body
+                },
+                timeout=15
+            )
+            if resp.status_code in (200, 201):
+                logger.info(f"[SUCCESS] Email delivered via Resend to {to_email}")
+                print(f"\n[EMAIL DISPATCH] [SUCCESS] Delivered via Resend to: {to_email}\n")
+                return True, None
+            else:
+                err_msg = f"Resend API error ({resp.status_code}): {resp.text}"
+                logger.error(err_msg)
+                return False, err_msg
+        except Exception as e:
+            logger.error(f"Resend API request failed: {e}")
+            return False, str(e)
+
+    return None, None
 
 def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, default_sender, config):
     """
     Directly connects to SMTP server and dispatches email.
     Catches specific exceptions and returns (success: bool, error_message: str | None).
     """
+    # 1. Try HTTPS API first if configured (never blocked on cloud platforms like Render)
+    if config.get('gmail_webhook_url') or config.get('brevo_api_key') or config.get('resend_api_key'):
+        https_ok, https_err = send_via_https_api(to_email, subject, html_body, plain_body, sender_name, default_sender, config)
+        if https_ok:
+            return True, None
+        elif https_ok is False:
+            return False, https_err
+
     try:
         smtp_username = config['smtp_username'].strip()
         smtp_password = config['smtp_password'].replace(' ', '').strip()
@@ -347,7 +457,12 @@ def execute_smtp_send(to_email, subject, html_body, plain_body, sender_name, def
         return False, err
     except Exception as e:
         err_msg = str(e)
-        if 'getaddrinfo failed' in err_msg.lower():
+        if '101' in err_msg or 'unreachable' in err_msg.lower():
+            err = (
+                "Cloud firewall block: Render Free Tier blocks outbound SMTP traffic on ports 25, 465, and 587. "
+                "To deliver emails from the cloud, add GMAIL_WEBHOOK_URL or BREVO_API_KEY in your Render environment variables."
+            )
+        elif 'getaddrinfo failed' in err_msg.lower():
             err = "Could not reach email server. Please check your internet connection."
         elif 'connection unexpectedly closed' in err_msg.lower():
             err = "SMTP connection closed by Gmail. Google rejected your App Password (535 Bad Credentials). Please generate a new 16-character App Password at myaccount.google.com/apppasswords."

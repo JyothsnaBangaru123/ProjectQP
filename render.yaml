@@ -24,4 +24,14 @@ services:
         generateValue: true
       - key: JWT_SECRET_KEY
         generateValue: true
+      - key: APP_LOGIN_URL
+        value: https://project-qp-eight.vercel.app/login
+      - key: BREVO_API_KEY
+        sync: false
+      - key: GMAIL_WEBHOOK_URL
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
 

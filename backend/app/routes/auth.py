@@ -233,3 +233,28 @@ def get_me():
         'success': True,
         'data': g.current_user.to_dict()
     })
+
+@auth_bp.route('/test-email', methods=['POST'])
+def test_email():
+    data = request.get_json() or {}
+    target_email = data.get('email', 'jyothsnabangaru4@gmail.com').strip()
+    from app.services.email_service import execute_smtp_send, get_email_config
+    cfg = get_email_config()
+    ok, err = execute_smtp_send(
+        to_email=target_email,
+        subject="ProjectQP Test Email Verification",
+        html_body="<h3>ProjectQP System Test</h3><p>Your ProjectQP email delivery configuration is working successfully!</p>",
+        plain_body="ProjectQP System Test: Your email delivery configuration is working successfully!",
+        sender_name=cfg.get('sender_name', 'GMRIT QP System'),
+        default_sender=cfg.get('default_sender', 'noreply@gmrit.edu.in'),
+        config=cfg
+    )
+    return jsonify({
+        'success': ok,
+        'error': err,
+        'target_email': target_email,
+        'has_smtp_user': bool(cfg.get('smtp_username')),
+        'has_webhook': bool(cfg.get('gmail_webhook_url')),
+        'has_brevo': bool(cfg.get('brevo_api_key')),
+        'has_resend': bool(cfg.get('resend_api_key'))
+    }), 200 if ok else 400
