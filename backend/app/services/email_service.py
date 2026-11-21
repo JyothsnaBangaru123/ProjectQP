@@ -272,21 +272,32 @@ def send_via_https_api(to_email, subject, html_body, plain_body, sender_name, de
     # 1. Google Apps Script Webhook (Direct Gmail forwarding over HTTPS)
     webhook_url = (config.get('gmail_webhook_url') or '').strip().strip('"').strip("'")
     if webhook_url:
+        # Auto-fix: if user accidentally copied the /edit URL from Apps Script editor
+        if '/edit' in webhook_url and '/exec' not in webhook_url:
+            webhook_url = webhook_url.split('/edit')[0] + '/exec'
+
         try:
             logger.info(f"Connecting to Google Apps Script Webhook for {to_email}...")
             resp = requests.post(
                 webhook_url,
                 json={'to': to_email, 'subject': subject, 'html': html_body, 'text': plain_body},
-                timeout=15
+                headers={'Content-Type': 'application/json'},
+                timeout=15,
+                allow_redirects=True
             )
-            if resp.status_code in (200, 302):
+            # Google Apps Script returns 200, 201, or 302 (redirect)
+            if resp.status_code in (200, 201, 302):
                 logger.info(f"[SUCCESS] Email delivered via Google Apps Script Webhook to {to_email}")
                 print(f"\n[EMAIL DISPATCH] [SUCCESS] Delivered via Google Webhook to: {to_email}\n")
                 return True, None
             else:
-                logger.warning(f"Google Webhook returned HTTP {resp.status_code}: {resp.text}")
+                err_msg = f"Google Webhook returned HTTP {resp.status_code}: {resp.text[:250]}"
+                logger.warning(err_msg)
+                return False, err_msg
         except Exception as e:
-            logger.warning(f"Google Webhook error: {e}")
+            err_msg = f"Google Webhook dispatch failed: {str(e)}"
+            logger.warning(err_msg)
+            return False, err_msg
 
     # 2. Brevo (Sendinblue) API
     brevo_key = (config.get('brevo_api_key') or '').strip().strip('"').strip("'")
