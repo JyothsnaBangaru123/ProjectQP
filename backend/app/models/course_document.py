@@ -23,8 +23,9 @@ class CourseDocument(db.Model):
     branch = db.relationship('Branch', backref=db.backref('documents', lazy=True), foreign_keys=[branch_id])
     course = db.relationship('Course', backref=db.backref('documents', lazy=True, cascade='all, delete-orphan'), foreign_keys=[course_id])
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_full_text=True):
+        preview = (self.extracted_text[:300] + '...') if self.extracted_text and len(self.extracted_text) > 300 else (self.extracted_text or '')
+        d = {
             'id': self.id,
             'user_id': self.user_id,
             'user_name': self.user_name or (self.user.user_name if self.user else 'Unknown'),
@@ -41,8 +42,9 @@ class CourseDocument(db.Model):
             'file_path': self.file_path,
             'has_extracted_text': bool(self.extracted_text),
             'text_length': len(self.extracted_text) if self.extracted_text else 0,
-            'extracted_text': self.extracted_text,
-            'extracted_text_preview': (self.extracted_text[:1000] + '...') if self.extracted_text and len(self.extracted_text) > 1000 else self.extracted_text,
+            'extracted_text_preview': preview,
+            'extracted_text': self.extracted_text if include_full_text else preview,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
             'status': self.status
         }
+        return d

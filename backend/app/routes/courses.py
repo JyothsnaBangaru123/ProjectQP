@@ -37,7 +37,25 @@ def enrich_course_data(course):
 def get_courses():
     try:
         courses = Course.query.order_by(Course.id.asc()).all()
-        data = [enrich_course_data(c) for c in courses]
+        regs = {r.id: r.reg for r in Regulation.query.all()}
+        pbs = {pb.id: pb for pb in PBMapping.query.all()}
+
+        data = []
+        for c in courses:
+            d = c.to_dict()
+            d['reg_name'] = regs.get(c.reg_id)
+            d['program_name'] = None
+            d['branch_name'] = None
+            d['branch_code'] = None
+            pb = pbs.get(c.pb_id)
+            if pb:
+                if pb.program:
+                    d['program_name'] = pb.program.name
+                if pb.branch:
+                    d['branch_name'] = pb.branch.branch_name
+                    d['branch_code'] = pb.branch.branch_code
+            data.append(d)
+
         return jsonify({'success': True, 'data': data})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500

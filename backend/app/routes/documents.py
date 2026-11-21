@@ -2,6 +2,7 @@ import os
 import fitz # PyMuPDF
 from flask import Blueprint, request, jsonify, g, send_file, current_app
 from werkzeug.utils import secure_filename
+from sqlalchemy.orm import joinedload
 from app.models.course_document import CourseDocument
 from app.models.course import Course
 from app.models.user import User
@@ -218,7 +219,11 @@ def upload_document():
 @token_required
 def get_documents():
     try:
-        query = CourseDocument.query.filter_by(status=1)
+        query = CourseDocument.query.options(
+            joinedload(CourseDocument.user),
+            joinedload(CourseDocument.branch),
+            joinedload(CourseDocument.course)
+        ).filter_by(status=1)
         
         user_role = (g.current_user.role or g.current_user.type or '').lower()
         user_branch = g.current_user.branch_id
@@ -242,7 +247,7 @@ def get_documents():
             query = query.filter(CourseDocument.course_id == int(request.args.get('course_id')))
 
         documents = query.order_by(CourseDocument.id.desc()).all()
-        return jsonify({'success': True, 'data': [d.to_dict() for d in documents]})
+        return jsonify({'success': True, 'data': [d.to_dict(include_full_text=False) for d in documents]})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -250,8 +255,12 @@ def get_documents():
 @token_required
 def get_course_documents(course_id):
     try:
-        docs = CourseDocument.query.filter_by(course_id=course_id, status=1).order_by(CourseDocument.id.desc()).all()
-        return jsonify({'success': True, 'data': [d.to_dict() for d in docs]})
+        docs = CourseDocument.query.options(
+            joinedload(CourseDocument.user),
+            joinedload(CourseDocument.branch),
+            joinedload(CourseDocument.course)
+        ).filter_by(course_id=course_id, status=1).order_by(CourseDocument.id.desc()).all()
+        return jsonify({'success': True, 'data': [d.to_dict(include_full_text=False) for d in docs]})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -280,10 +289,7 @@ def get_document(id):
                     db.session.rollback()
                     print(f"Failed to save auto-repaired text: {commit_err}")
 
-    d = doc.to_dict()
-    d['extracted_text'] = doc.extracted_text
-    d['extracted_text_preview'] = (doc.extracted_text[:1000] + '...') if doc.extracted_text and len(doc.extracted_text) > 1000 else doc.extracted_text
-    return jsonify({'success': True, 'data': d})
+    return jsonify({'success': True, 'data': doc.to_dict(include_full_text=True)})
 
 @documents_bp.route('/download/<int:id>', methods=['GET'])
 @token_required
