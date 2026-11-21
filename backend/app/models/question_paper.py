@@ -26,6 +26,7 @@ class QuestionPaper(db.Model):
     is_password_protected = db.Column(db.Boolean, default=False)
     original_pdf_path = db.Column(db.String(500), nullable=True)
     protected_pdf_path = db.Column(db.String(500), nullable=True)
+    protected_pdf_base64 = db.Column(db.Text, nullable=True) # Persistent cloud storage across container restarts
     protected_at = db.Column(db.DateTime, nullable=True)
     protected_by_id = db.Column(db.Integer, nullable=True)
     protected_by_name = db.Column(db.String(255), nullable=True)

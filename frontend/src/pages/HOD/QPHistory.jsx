@@ -101,7 +101,12 @@ const QPHistory = () => {
       await qpService.downloadProtectedPDF(paper.id, paper.title);
       showNotification(`Downloaded encrypted PDF for "${paper.title}". Use the password sent to your email to open it.`);
     } catch (err) {
-      showNotification(err.message || 'Failed to download encrypted question paper.', 'error');
+      const msg = err.response?.data?.message || err.message || '';
+      if (msg.includes('404') || msg.includes('not found') || msg.includes('before persistent')) {
+        showNotification(`This file was created before cloud storage was activated. Please click "🔒 Re-protect" below to set a password and regenerate the file permanently.`, 'error');
+      } else {
+        showNotification(msg || 'Failed to download encrypted question paper.', 'error');
+      }
     } finally {
       setDownloadingId(null);
     }

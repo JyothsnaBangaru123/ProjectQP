@@ -766,6 +766,14 @@ def protect_and_share_qp(id):
         qp.protected_by_id = g.current_user.id
         qp.protected_by_name = g.current_user.user_name
 
+        # Store encrypted PDF in database so ephemeral cloud container restarts never lose the file!
+        import base64
+        try:
+            with open(protected_pdf, 'rb') as pf:
+                qp.protected_pdf_base64 = base64.b64encode(pf.read()).decode('utf-8')
+        except Exception as b64_err:
+            print(f"Warning: could not store base64 PDF in database: {b64_err}")
+
         # 4. Save sharing records and dispatch emails asynchronously in background thread
         delivery_results = []
         successful_deliveries = 0
@@ -995,9 +1003,28 @@ def download_protected_qp(id):
     is_hod = 'hod' in user_role or 'head' in user_role
     is_admin = 'admin' in user_role
 
+    # Self-heal: If encrypted PDF was wiped during a cloud container restart, restore it from PostgreSQL!
+    import base64
+    if (not qp.protected_pdf_path or not os.path.exists(qp.protected_pdf_path)) and getattr(qp, 'protected_pdf_base64', None):
+        try:
+            vault_dir = get_vault_directory()
+            restored_path = os.path.join(vault_dir, f"qp_{qp.id}_protected.pdf")
+            with open(restored_path, 'wb') as rf:
+                rf.write(base64.b64decode(qp.protected_pdf_base64))
+            qp.protected_pdf_path = restored_path
+            db.session.commit()
+        except Exception as restore_err:
+            print(f"Warning: could not restore PDF from database: {restore_err}")
+
     # Check if paper is password protected
-    if not qp.is_password_protected or not qp.protected_pdf_path or not os.path.exists(qp.protected_pdf_path):
-        return jsonify({'success': False, 'message': 'Protected PDF not found. The paper has not yet been password-protected.'}), 404
+    if not qp.is_password_protected:
+        return jsonify({'success': False, 'message': 'This paper has not yet been password-protected.'}), 404
+
+    if not qp.protected_pdf_path or not os.path.exists(qp.protected_pdf_path):
+        return jsonify({
+            'success': False,
+            'message': 'The encrypted PDF for this paper was created before persistent database storage was activated. Please click "Re-protect" to regenerate the file permanently.'
+        }), 404
 
     # Authorization verification
     if is_faculty:
@@ -1055,8 +1082,19 @@ def verify_qp_password(id):
     if not entered_password:
         return jsonify({'success': False, 'message': 'Please enter the question paper password to unlock view and print.'}), 400
 
+    if (not qp.protected_pdf_path or not os.path.exists(qp.protected_pdf_path)) and getattr(qp, 'protected_pdf_base64', None):
+        try:
+            vault_dir = get_vault_directory()
+            restored_path = os.path.join(vault_dir, f"qp_{qp.id}_protected.pdf")
+            with open(restored_path, 'wb') as rf:
+                rf.write(base64.b64decode(qp.protected_pdf_base64))
+            qp.protected_pdf_path = restored_path
+            db.session.commit()
+        except Exception:
+            pass
+
     if not qp.protected_pdf_path or not os.path.exists(qp.protected_pdf_path):
-        return jsonify({'success': False, 'message': 'Protected PDF file not found on server.'}), 404
+        return jsonify({'success': False, 'message': 'The encrypted PDF for this paper was created before persistent database storage was activated. Please click "Re-protect" to regenerate the file permanently.'}), 404
 
     if not verify_pdf_password(qp.protected_pdf_path, entered_password):
         return jsonify({'success': False, 'message': 'Incorrect password. Please enter the password sent to your registered email.'}), 400

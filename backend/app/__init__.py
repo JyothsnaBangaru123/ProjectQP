@@ -45,6 +45,13 @@ def create_app(config_class=Config):
     with app.app_context():
         try:
             db.create_all()
+            from sqlalchemy import text
+            try:
+                db.session.execute(text("ALTER TABLE question_papers ADD COLUMN IF NOT EXISTS protected_pdf_base64 TEXT;"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
             from app.models.role import Role
             if Role.query.count() == 0:
                 default_roles = ['Admin', 'Faculty', 'Registrar', 'Staff', 'Moderator', 'HOD']
